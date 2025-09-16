@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Submitted Entries</title>
+</head>
+<body>
+    <h1>All Scouting Entries</h1>
+    <table border="1">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Auto L1</th>
+                <th>Auto L2</th>
+                <th>Auto L3</th>
+                <th>Auto L4</th>
+                <th>auto_algae_processor</th>
+                <th>auto_algae_barge</th>
+                <th>auto_algae_remove</th>
+                <th>teleop L1</th>
+                <th>teleop L2</th>
+                <th>teleop L3</th>
+                <th>teleop L4</th>
+                <th>teleop_algae_barge</th>
+                <th>teleop_algae_remove</th>
+
+                <th>Rating</th>
+                <th>Climb</th>
+                <th>Comment</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for entry in entries %}
+            <tr>
+                <td>{{ entry.id }}</td>
+
+                <td>{{ entry.auto_l1 }}</td>
+                <td>{{ entry.auto_l2 }}</td>
+                <td>{{ entry.auto_l3 }}</td>
+                <td>{{ entry.auto_l4 }}</td>
+                <td>{{ entry.auto_algae_processor }}</td>
+                <td>{{ entry.auto_algae_barge }}</td>
+                <td>{{ entry.auto_algae_remove }}</td>
+
+                <td>{{ entry.teleop_l1 }}</td>
+                <td>{{ entry.teleop_l2 }}</td>
+                <td>{{ entry.teleop_l3 }}</td>
+                <td>{{ entry.teleop_l4 }}</td>
+                <td>{{ entry.teleop_algae_processor }}</td>
+                <td>{{ entry.teleop_algae_barge }}</td>
+                <td>{{ entry.teleop_algae_remove }}</td>
+
+                <td>{{ entry.climb_type }}</td>
+                <td>{{ entry.defense_rating }}</td>
+                <td>{{ entry.comment }}</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>

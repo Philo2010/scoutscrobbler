@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+
+<html>
+    <head>
+        <title>Scouter</title>
+        <style>
+    .rating {
+      direction: rtl;
+      display: inline-flex;
+      font-size: 2em;
+      cursor: pointer;
+    }
+    .rating input {
+      display: none;
+    }
+    .rating label {
+      color: #ccc;
+    }
+    .rating input:checked ~ label {
+      color: gold;
+    }
+    .rating label:hover,
+    .rating label:hover ~ label {
+      color: gold;
+    }
+  </style>
+    </head>
+    <body>
+        <h1>Scouter</h1>
+        <form action="/submit" method="post">
+            <h2>Auto</h2>
+                L1: <input name="auto-L1" id="auto-L1" type="number"> <br>
+                L2: <input name="auto-L2" id="auto-L2" type="number"> <br>
+                L3: <input name="auto-L3" id="auto-L3" type="number"> <br>
+                L4: <input name="auto-L4" id="auto-L4" type="number"> <br>
+                Algae (Processor): <input name="auto-alpro" id="auto-alpro" type="number"> <br>
+                Algae (Barge): <input name="auto-albar" id="auto-albar" type="number"> <br>
+                Algae (Remove): <input name="auto-alrem" id="auto-alrem" type="number"> <br>
+            <h2>Teleop</h2>
+                L1: <input name="teleop-L1" id="teleop-L1" type="number"> <br>
+                L2: <input name="teleop-L2" id="teleop-L2" type="number"> <br>
+                L3: <input name="teleop-L3" id="teleop-L3" type="number"> <br>
+                L4: <input name="teleop-L4" id="teleop-L4" type="number"> <br>
+                Algae (Processor): <input name="teleop-alpro" id="teleop-alpro" type="number"> <br>
+                Algae (Barge): <input name="teleop-albar" id="teleop-albar" type="number"> <br>
+                Algae (Remove): <input name="teleop-alrem" id="teleop-alrem" type="number"> <br>
+            <h2>End game</h2>
+                <h3>Defensive ability</h3>
+                <div class="rating">
+                    <input type="radio" id="star5" name="rating" value="5"><label for="star5">★</label>
+                    <input type="radio" id="star4" name="rating" value="4"><label for="star4">★</label>
+                    <input type="radio" id="star3" name="rating" value="3"><label for="star3">★</label>
+                    <input type="radio" id="star2" name="rating" value="2"><label for="star2">★</label>
+                    <input type="radio" id="star1" name="rating" value="1"><label for="star1">★</label>
+                </div>
+                <br>
+                <label for="climb">Climb</label>
+                <select name="climb" id="climb">
+                    <option value="deep">Deep</option>
+                    <option value="shallow">Shallow</option>
+                    <option value="park">Park</option>
+                    <option value="none">None</option>
+                </select> 
+                <h3>Comments</h3>
+                <textarea name="comment" id="commit"></textarea>
+                <br>
+                <input type="submit">
+        </form>
+    </body>
+</html>

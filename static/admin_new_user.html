@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Creation Form</title>
+</head>
+<body>
+
+    <h2>Create User</h2>
+
+    <form action="/new_user" method="POST">
+        <label for="username">Username:</label><br>
+        <input type="text" id="username" name="username" required><br><br>
+
+        <label for="password">Password:</label><br>
+        <input type="password" id="password" name="password" required><br><br>
+
+        <label for="passcreate">Passcreate:</label><br>
+        <input type="text" id="passcreate" name="passcreate" required><br><br>
+
+        <label for="can_write">Can Write:</label><br>
+        <select id="can_write" name="can_write" required>
+            <option value="true">Yes</option>
+            <option value="false">No</option>
+        </select><br><br>
+
+        <label for="can_read">Can Read:</label><br>
+        <select id="can_read" name="can_read" required>
+            <option value="true">Yes</option>
+            <option value="false">No</option>
+        </select><br><br>
+
+        <input type="submit" value="Create User">
+    </form>
+
+</body>
+</html>

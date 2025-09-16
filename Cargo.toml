@@ -1,0 +1,21 @@
+[package]
+name = "scouterscrobbler"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+rocket = "0.5.1"
+serde = "1.0.224"
+sqlx = { version = "0.7", features = ["sqlite", "runtime-tokio-rustls", "macros", "chrono", "uuid"] }
+rocket_dyn_templates = { version = "0.1.0", features = ["tera"] }
+uuid = { version = "1.18.1", features = ["v4", "serde"] }
+bcrypt = "0.17.1"
+
+
+
+[dependencies.rocket_db_pools]
+version = "0.2.0"
+features = ["sqlx_sqlite"]
+
+[default.databases.sqlite_logs]
+url =  "C:/Users/philo/Documents/code/scouterscrobbler/main.sqlite"
