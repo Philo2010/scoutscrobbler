@@ -2,7 +2,7 @@
 
 use core::hash;
 use std::default;
-use std::str::Bytes;
+use std::str::{Bytes, FromStr};
 use std::sync::atomic::{AtomicUsize, Ordering};
 
 use rocket::fs::FileServer;
@@ -14,6 +14,7 @@ use sqlx::{Error, FromRow, Row};
 use rocket::fs::relative;
 use rocket_db_pools::sqlx::{self, SqlitePool};
 use sqlx::types::Uuid;
+use rocket::http::{Cookie, CookieJar};
 
 const bcrypt_cost: u32 = 12;
 
@@ -133,8 +134,8 @@ async fn new_user(
     .bind(id)  // UUID as bytes for the BLOB column
     .bind(&form_data.username)       // Bind username
     .bind(passhash)                  // Bind hashed password
-    .bind(can_read)                  // Bind can_read as i32 (1 for true, 0 for false)
-    .bind(can_write)                 // Bind can_write as i32 (1 for true, 0 for false)
+    .bind(can_write)                  // Bind can_read as i32 (1 for true, 0 for false)
+    .bind(can_read)                 // Bind can_write as i32 (1 for true, 0 for false)
     .execute(pool.inner())          // Execute query on the pool
     .await;
 
@@ -159,9 +160,9 @@ async fn new_user(
 }
 
 #[post("/login", data = "<form_data>")]
-async fn login(pool: &State<SqlitePool>, form_data: Form<UserRequestLogin>) -> String {
+async fn login(pool: &State<SqlitePool>, form_data: Form<UserRequestLogin>) -> Template {
     let user_result = sqlx::query(r#"
-        SELECT id, passhash
+        SELECT id, passhash, can_read, can_write
         FROM user_list
         WHERE username = ?
     "#)
@@ -170,31 +171,87 @@ async fn login(pool: &State<SqlitePool>, form_data: Form<UserRequestLogin>) -> S
     .await;
 
     // Handle the query result
-    let (user_id, passhash) = match user_result {
+    let (user_id, passhash, can_read, can_write) = match user_result {
         Ok(Some(row)) => {
             // Extract id (UUID) and passhash from the row
             let user_id: Uuid = row.get("id");
             let passhash: String = row.get("passhash");
-            (user_id, passhash)
+            let can_read: bool = row.get("can_read");
+            let can_write: bool = row.get("can_write");
+            (user_id, passhash, can_read, can_write)
         },
-        Ok(None) => return "User not found".to_string(), // No user found
-        Err(_) => return "Database error".to_string(), // Database error occurred
+        Ok(None) => {return Template::render("login", context! [state: "No user found", uuid: ""]);}, // No user found
+        Err(_) => {return Template::render("login", context! [state: "Database Error",uuid: ""]);}, // Database error occurred
     };
     
     let is_vaild = match bcrypt::verify(&form_data.password, &passhash) {
         Ok(a) => a,
-        Err(_) => {return "A unknown problem as happened".to_string()},
+        Err(_) => {return Template::render("login", context! [state: "An unknown problem has occered", uuid: ""]);},
     };
     
     if (is_vaild) {
-        user_id.to_string()
+        Template::render("login", context! [state: "Logined in!", 
+        uuid: user_id,
+        username: &form_data.username,
+        can_read: can_read,
+        can_write: can_write
+         ])
     } else {
-        "Wrong password".to_string()
+        Template::render("login", context! [state: "Wrong password", uuid: ""])
     }
 }
 
 #[get("/entries")]
-async fn view_entries(db: &State<SqlitePool>) -> Template {
+async fn view_entries(db: &State<SqlitePool>, jar: &CookieJar<'_>) -> Template {
+
+    //Get cookie
+    let userid_string = match jar.get("uuid") {
+        Some(a) =>  a.value(),
+        None => {
+            let entries: Vec<ScoutingEntry> = Vec::new();
+            return Template::render("entries", context! { entries });
+        },
+    };
+
+    let userid = match Uuid::from_str(userid_string) {
+        Ok(a) => a,
+        Err(_) => {
+            let entries: Vec<ScoutingEntry> = Vec::new();
+            return Template::render("entries", context! { entries });
+        },
+    };
+
+
+    let user_request = sqlx::query(r#"
+        SELECT can_read
+        FROM user_list
+        WHERE id = ?
+    "#)
+    .bind(userid)
+    .fetch_optional(db.inner())
+    .await; //TODO: fix make new user to get perms right
+
+
+    let can_read = match user_request {
+        Ok(Some(a)) => {
+            a.get::<bool, _>(0)
+        },
+        Ok(None) => {
+            let entries: Vec<ScoutingEntry> = Vec::new();
+            return Template::render("entries", context! { entries });
+        }
+        Err(_) => {
+            let entries: Vec<ScoutingEntry> = Vec::new();
+            return Template::render("entries", context! { entries });
+        },
+    };
+    println!("{}", can_read);
+
+    if !can_read {
+        let entries: Vec<ScoutingEntry> = Vec::new();
+        return Template::render("entries", context! { entries });
+    }
+
     let entries = sqlx::query_as::<_, ScoutingEntry>(r#"
         SELECT 
           se.id,
@@ -219,14 +276,57 @@ async fn view_entries(db: &State<SqlitePool>) -> Template {
     .fetch_all(db.inner())
     .await
     .unwrap_or_default();
-    println!("{}", entries.len());
 
     Template::render("entries", context! { entries })
 }
 
 
 #[post("/submit", data = "<form_data>")]
-async fn submit(pool: &rocket::State<SqlitePool>, form_data: Form<ScoutingForm>) -> &'static str {
+async fn submit(pool: &rocket::State<SqlitePool>, jar: &CookieJar<'_>, form_data: Form<ScoutingForm>) -> &'static str {
+
+    let userid_string = match jar.get("uuid") {
+        Some(a) =>  a.value(),
+        None => {
+            let entries: Vec<ScoutingEntry> = Vec::new();
+            "Not logined in"
+        },
+    };
+
+    let userid = match Uuid::from_str(userid_string) {
+        Ok(a) => a,
+        Err(_) => {
+            let entries: Vec<ScoutingEntry> = Vec::new();
+            return "Not logined in";
+        },
+    };
+
+
+    let user_request = sqlx::query(r#"
+        SELECT can_write
+        FROM user_list
+        WHERE id = ?
+    "#)
+    .bind(userid)
+    .fetch_optional(pool.inner())
+    .await; //TODO: fix make new user to get perms right
+
+
+    let can_write = match user_request {
+        Ok(Some(a)) => {
+            a.get::<bool, _>(0)
+        },
+        Ok(None) => {
+            return "Can't find user";
+        }
+        Err(_) => {
+            return "Database Error";
+        },
+    };
+
+    if !can_write {
+        return "You don't have writing perms!";
+    }
+
     let form = form_data.into_inner();
 
     // Insert into scouting_entry

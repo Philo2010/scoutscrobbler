@@ -1,0 +1,53 @@
+.step { display: none; }
+.step.active { display: block; }
+.buttons { margin-top: 10px; }
+    .slider-container {
+    width: 300px;
+    margin: 20px;
+}
+
+input[type="range"] {
+    width: 100%;
+    appearance: none;
+    height: 10px;
+    background: linear-gradient(to right, #ddd 0%, #ddd 100%);
+    border-radius: 5px;
+    outline: none;
+}
+
+/* Slider thumb */
+input[type="range"]::-webkit-slider-thumb {
+    appearance: none;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: #007bff;
+    cursor: pointer;
+}
+input[type="range"]::-moz-range-thumb {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: #007bff;
+    cursor: pointer;
+}
+
+/* Ticks */
+.ticks {
+    display: flex;
+    justify-content: space-between;
+    font-size: 14px;
+    padding-top: 5px;
+}
+
+body {
+    background-color: #2a2727;
+    color: white;
+    font-size: 30px;
+    font-family: monospace;
+    margin: auto;
+    text-align: center;
+    max-width: fit-content;
+    margin-left: auto;
+    margin-right: auto;
+}

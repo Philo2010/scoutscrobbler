@@ -1,34 +1,16 @@
 <!DOCTYPE html>
-
-<html>
-    <head>
-        <title>Scouter</title>
-        <style>
-    .rating {
-      direction: rtl;
-      display: inline-flex;
-      font-size: 2em;
-      cursor: pointer;
-    }
-    .rating input {
-      display: none;
-    }
-    .rating label {
-      color: #ccc;
-    }
-    .rating input:checked ~ label {
-      color: gold;
-    }
-    .rating label:hover,
-    .rating label:hover ~ label {
-      color: gold;
-    }
-  </style>
-    </head>
-    <body>
-        <h1>Scouter</h1>
-        <form>
-            <h2>Auto</h2>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Multi-step Form</title>
+  <link rel="stylesheet" href="scout/style.css">
+</head>
+<body>
+  <form id="scouterForm" method="post">
+    
+    <!-- Step 1 -->
+    <div class="step active">
+      <h2>Auto</h2>
                 L1: <input name="auto-L1" id="auto-L1" type="number"> <br>
                 L2: <input name="auto-L2" id="auto-L2" type="number"> <br>
                 L3: <input name="auto-L3" id="auto-L3" type="number"> <br>
@@ -36,7 +18,14 @@
                 Algae (Processor): <input name="auto-alpro" id="auto-alpro" type="number"> <br>
                 Algae (Barge): <input name="auto-albar" id="auto-albar" type="number"> <br>
                 Algae (Remove): <input name="auto-alrem" id="auto-alrem" type="number"> <br>
-            <h2>Teleop</h2>
+                <div class="buttons">
+                  <button type="button" onclick="nextStep()">Next</button>
+                </div>
+    </div>
+
+    <!-- Step 2 -->
+    <div class="step">
+        <h2>Teleop</h2>
                 L1: <input name="teleop-L1" id="teleop-L1" type="number"> <br>
                 L2: <input name="teleop-L2" id="teleop-L2" type="number"> <br>
                 L3: <input name="teleop-L3" id="teleop-L3" type="number"> <br>
@@ -44,15 +33,25 @@
                 Algae (Processor): <input name="teleop-alpro" id="teleop-alpro" type="number"> <br>
                 Algae (Barge): <input name="teleop-albar" id="teleop-albar" type="number"> <br>
                 Algae (Remove): <input name="teleop-alrem" id="teleop-alrem" type="number"> <br>
-            <h2>End game</h2>
-                <h3>Defensive ability</h3>
-                <div class="rating">
-                    <input type="radio" id="star5" name="rating" value="5"><label for="star5">★</label>
-                    <input type="radio" id="star4" name="rating" value="4"><label for="star4">★</label>
-                    <input type="radio" id="star3" name="rating" value="3"><label for="star3">★</label>
-                    <input type="radio" id="star2" name="rating" value="2"><label for="star2">★</label>
-                    <input type="radio" id="star1" name="rating" value="1"><label for="star1">★</label>
+                <div class="buttons">
+                  <button type="button" onclick="prevStep()">Back</button>
+                  <button type="button" onclick="nextStep()">Next</button>
                 </div>
+    </div>
+
+    <!-- Step 3 -->
+    <div class="step">
+      <h3>Defensive ability</h3>
+                <div class="slider-container">
+                <input type="range" name="rating" id="rating" min="1" max="5" step="1" value="3">
+                <div class="ticks">
+                  <span>1</span>
+                  <span>2</span>
+                  <span>3</span>
+                  <span>4</span>
+                  <span>5</span>
+                </div>
+              </div>
                 <br>
                 <label for="climb">Climb</label>
                 <select name="climb" id="climb">
@@ -63,12 +62,40 @@
                 </select> 
                 <h3>Comments</h3>
                 <textarea name="comment" id="commit"></textarea>
+                <div class="buttons">
+                  <button type="button" onclick="prevStep()">Back</button>
+                </div>
                 <br>
                 <input type="submit">
-        </form>
-        <script>
-        // Listen for form submission
-        document.getElementById('scouterForm').addEventListener('submit', function(event) {
+    </div>
+
+  </form>
+
+  <script>
+    let currentStep = 0;
+    const steps = document.querySelectorAll(".step");
+
+    function showStep(index) {
+      steps.forEach((step, i) => {
+        step.classList.toggle("active", i === index);
+      });
+    }
+
+    function nextStep() {
+      if (currentStep < steps.length - 1) {
+        currentStep++;
+        showStep(currentStep);
+      }
+    }
+
+    function prevStep() {
+      if (currentStep > 0) {
+        currentStep--;
+        showStep(currentStep);
+      }
+    }
+    document.getElementById('scouterForm').addEventListener('submit', function(event) {
+            console.log("Sending data!");
             event.preventDefault();  // Prevent form from submitting the traditional way
 
             // Collect form data
@@ -83,7 +110,6 @@
                 body: new URLSearchParams(formData).toString(), // Convert FormData to URL-encoded string
                 credentials: 'include', // This ensures that cookies are sent along with the request
             })
-            .then(response => response.json()) // Handle the response
             .then(data => {
                 console.log('Success:', data);
                 // Optionally, display a success message or reset the form
@@ -92,6 +118,6 @@
                 console.error('Error:', error);
             });
         });
-        </script>
-    </body>
+  </script>
+</body>
 </html>

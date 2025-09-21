@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+
+<html>
+    <head>
+        <title>Submitted Entries</title>
+    </head>
+    <body>
+        <h1>Login state:</h1>
+        <p>{{ state }}</p>
+        <script>
+            document.cookie = "uuid={{ uuid }};";
+            document.cookie = "can_write={{ can_write }};";
+            document.cookie = "can_read={{ can_read }};";
+            document.cookie = "name={{ username }};";
+        </script>
+    </body>
+</html>

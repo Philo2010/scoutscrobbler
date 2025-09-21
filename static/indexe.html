@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+
+<html>
+    <head>
+        <title>Scout Scrobbler</title>
+        <link rel="stylesheet" href="style.css">
+    </head>
+    <body>
+        <h1 style="font-size: 40px"><em>SCOUT</em></h1>
+        <h1 style="margin-left: 200px;font-size: 40px;"><em>SCROBBLER</em></h1>
+        <p>Simple Scouter by Philip Bedrosian</p>
+
+        <div class="login-menu" id="login-menu">
+            <p style="font-size: 10px;">Logined in as: AHH | Can read: ✓ | Can write: ✓</p>
+        </div>
+
+        <a href="scout">
+            <div class="buttons">
+                <p>Scout</p>
+            </div>
+        </a>
+        <br>
+
+        <a href="search">
+            <div class="buttons">
+                <p>Search</p>
+            </div>
+        </a>
+    </body>
+
+    <script>
+        //Btw this code is copied i really dont like js so dont blame me :<
+        function getCookie(cname) {
+            let name = cname + "=";
+            let decodedCookie = decodeURIComponent(document.cookie);
+            let ca = decodedCookie.split(';');
+            for(let i = 0; i <ca.length; i++) {
+                let c = ca[i];
+                while (c.charAt(0) == ' ') {
+                c = c.substring(1);
+                }
+                if (c.indexOf(name) == 0) {
+                return c.substring(name.length, c.length);
+                }
+            }
+            return "";
+        }
+        const menu = document.getElementById("login-menu");
+        const username = getCookie("name");
+        const can_read = getCookie("can_read");
+        const can_write = getCookie("can_write");
+
+        if (username == "") {
+            menu.innerHTML = "<p>Not logined in! Please login!</p>"
+        } else {
+            menu.innerHTML = "<p style=\"font-size: 10px;\">Logined in as: " + username + " | Can read: " + can_read + " | Can write: "+ can_write +"</p>";
+        }
+        //TODO: Make that
+    </script>
+</html>
