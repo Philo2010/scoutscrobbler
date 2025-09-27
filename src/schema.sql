@@ -1,11 +1,15 @@
 CREATE TABLE scouting_entry (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user TEXT,
+    team INTEGER,
+    total_score INTEGER,
     created_at TEXT DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE auto_data (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     scouting_id INTEGER,
+    moved BOOL,
     L1 INTEGER,
     L2 INTEGER,
     L3 INTEGER,
@@ -31,6 +35,7 @@ CREATE TABLE teleop_data (
 
 CREATE TABLE endgame_data (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
+    died BOOL,
     scouting_id INTEGER,
     defense_rating INTEGER,
     climb_type TEXT,

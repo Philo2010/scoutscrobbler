@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+
+<html>
+    <head>
+        <title>Search</title>
+        <link rel="stylesheet" href="/style.css">
+    </head>
+    <body>
+        <h1>Search</h1>
+        <form action="/search" method="POST">
+            <label for="startdate">start date:</label><br>
+            <input type="date" id="startdate" name="startdate" required><br><br>
+
+            <label for="stopdate">stop date:</label><br>
+            <input type="date" id="stopdate" name="stopdate" required><br><br>
+
+            <label for="team">team:</label><br>
+            <input type="number" id="team" name="team" required><br><br>
+
+            <input type="submit" value="search">
+        </form>
+    </body>
+</html>

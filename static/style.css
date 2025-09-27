@@ -32,3 +32,31 @@ a {
     border-width: 2px;
     border-color: white;    
 }
+
+/* Style for bouncing rainbow letters */
+.wave-letter {
+  display: inline-block;
+}
+
+.animated .wave-letter {
+  animation: wave 2s infinite ease-in-out, rainbow 3s linear infinite;
+}
+
+@keyframes wave {
+  0%   { transform: translateY(0); }
+  25%  { transform: translateY(-10px); }
+  50%  { transform: translateY(0); }
+  75%  { transform: translateY(10px); }
+  100% { transform: translateY(0); }
+}
+
+@keyframes rainbow {
+  0%   { color: red; }
+  14%  { color: orange; }
+  28%  { color: yellow; }
+  42%  { color: green; }
+  57%  { color: blue; }
+  71%  { color: indigo; }
+  85%  { color: violet; }
+  100% { color: red; }
+}

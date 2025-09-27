@@ -2,96 +2,121 @@
 
 <html>
     <head>
-        <title>Scouter</title>
-        <style>
-    .rating {
-      direction: rtl;
-      display: inline-flex;
-      font-size: 2em;
-      cursor: pointer;
-    }
-    .rating input {
-      display: none;
-    }
-    .rating label {
-      color: #ccc;
-    }
-    .rating input:checked ~ label {
-      color: gold;
-    }
-    .rating label:hover,
-    .rating label:hover ~ label {
-      color: gold;
-    }
-  </style>
+        <title>Scout Scrobbler</title>
+        <link rel="stylesheet" href="style.css">
     </head>
     <body>
-        <h1>Scouter</h1>
-        <form>
-            <h2>Auto</h2>
-                L1: <input name="auto-L1" id="auto-L1" type="number"> <br>
-                L2: <input name="auto-L2" id="auto-L2" type="number"> <br>
-                L3: <input name="auto-L3" id="auto-L3" type="number"> <br>
-                L4: <input name="auto-L4" id="auto-L4" type="number"> <br>
-                Algae (Processor): <input name="auto-alpro" id="auto-alpro" type="number"> <br>
-                Algae (Barge): <input name="auto-albar" id="auto-albar" type="number"> <br>
-                Algae (Remove): <input name="auto-alrem" id="auto-alrem" type="number"> <br>
-            <h2>Teleop</h2>
-                L1: <input name="teleop-L1" id="teleop-L1" type="number"> <br>
-                L2: <input name="teleop-L2" id="teleop-L2" type="number"> <br>
-                L3: <input name="teleop-L3" id="teleop-L3" type="number"> <br>
-                L4: <input name="teleop-L4" id="teleop-L4" type="number"> <br>
-                Algae (Processor): <input name="teleop-alpro" id="teleop-alpro" type="number"> <br>
-                Algae (Barge): <input name="teleop-albar" id="teleop-albar" type="number"> <br>
-                Algae (Remove): <input name="teleop-alrem" id="teleop-alrem" type="number"> <br>
-            <h2>End game</h2>
-                <h3>Defensive ability</h3>
-                <div class="rating">
-                    <input type="radio" id="star5" name="rating" value="5"><label for="star5">★</label>
-                    <input type="radio" id="star4" name="rating" value="4"><label for="star4">★</label>
-                    <input type="radio" id="star3" name="rating" value="3"><label for="star3">★</label>
-                    <input type="radio" id="star2" name="rating" value="2"><label for="star2">★</label>
-                    <input type="radio" id="star1" name="rating" value="1"><label for="star1">★</label>
-                </div>
-                <br>
-                <label for="climb">Climb</label>
-                <select name="climb" id="climb">
-                    <option value="deep">Deep</option>
-                    <option value="shallow">Shallow</option>
-                    <option value="park">Park</option>
-                    <option value="none">None</option>
-                </select> 
-                <h3>Comments</h3>
-                <textarea name="comment" id="commit"></textarea>
-                <br>
-                <input type="submit">
-        </form>
-        <script>
-        // Listen for form submission
-        document.getElementById('scouterForm').addEventListener('submit', function(event) {
-            event.preventDefault();  // Prevent form from submitting the traditional way
+        <h1><em class="wave-text">SCOUT</em></h1>
+        <h1><em class="wave-text">SCROBBLER</em></h1>
 
-            // Collect form data
-            const formData = new FormData(this);
+        <p>Simple Scouter by Philip Bedrosian</p>
 
-            // Send POST request with form data and cookies
-            fetch('/submit', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded',
-                },
-                body: new URLSearchParams(formData).toString(), // Convert FormData to URL-encoded string
-                credentials: 'include', // This ensures that cookies are sent along with the request
-            })
-            .then(response => response.json()) // Handle the response
-            .then(data => {
-                console.log('Success:', data);
-                // Optionally, display a success message or reset the form
-            })
-            .catch(error => {
-                console.error('Error:', error);
-            });
-        });
-        </script>
+        <div class="login-menu" id="login-menu">
+            <p style="font-size: 10px;">Logined in as: AHH | Can read: ✓ | Can write: ✓</p>
+        </div>
+
+        <a href="login_page.html">
+            <div class="buttons">
+                <p>Login</p>
+            </div>
+        </a>
+        <br>
+
+        <a href="scout">
+            <div class="buttons">
+                <p>Scout</p>
+            </div>
+        </a>
+        <br>
+
+        <a href="search_page">
+            <div class="buttons">
+                <p>Search</p>
+            </div>
+        </a>
     </body>
+
+    <script>
+    // Btw this code is copied i really dont like js so dont blame me :<
+    function getCookie(cname) {
+        let name = cname + "=";
+        let decodedCookie = decodeURIComponent(document.cookie);
+        let ca = decodedCookie.split(';');
+        for (let i = 0; i < ca.length; i++) {
+            let c = ca[i];
+            while (c.charAt(0) === ' ') {
+                c = c.substring(1);
+            }
+            if (c.indexOf(name) === 0) {
+                return c.substring(name.length, c.length);
+            }
+        }
+        return "";
+    }
+
+    const menu = document.getElementById("login-menu");
+    const username = getCookie("name");
+    const can_read = getCookie("can_read");
+    const can_write = getCookie("can_write");
+
+    if (username === "") {
+        menu.innerHTML = "<p>Not logged in! Please login!</p>";
+    } else {
+        menu.innerHTML = `<p style="font-size: 10px;">Logged in as: ${username} | Can read: ${can_read} | Can write: ${can_write}</p>`;
+    }
+
+    // Function to apply wave effect statically (e.g. on SCOUT / SCROBBLER headers)
+    function applyWaveEffect() {
+        const elements = document.querySelectorAll('.wave-text');
+
+        elements.forEach(el => {
+            const text = el.textContent;
+            el.innerHTML = ''; // Clear original text
+
+            [...text].forEach((char, i) => {
+                const span = document.createElement('span');
+                span.textContent = char;
+                span.classList.add('wave-letter');
+                span.style.animationDelay = `${i * 0.1}s`;
+                el.appendChild(span);
+            });
+
+            el.classList.add('animated');
+        });
+    }
+
+    applyWaveEffect();
+
+    // Handle hover wave effect on <a> links
+    document.querySelectorAll('a').forEach(link => {
+        const p = link.querySelector('p');
+        if (!p) return;
+
+        const originalText = p.textContent;
+        p.dataset.original = originalText;
+
+        link.addEventListener('mouseenter', () => {
+            if (p.dataset.isAnimated === "true") return;
+
+            p.innerHTML = '';
+            [...originalText].forEach((char, i) => {
+                const span = document.createElement('span');
+                span.textContent = char;
+                span.classList.add('wave-letter');
+                span.style.animationDelay = `${i * 0.1}s`;
+                p.appendChild(span);
+            });
+
+            p.classList.add('animated');
+            p.dataset.isAnimated = "true";
+        });
+
+        link.addEventListener('mouseleave', () => {
+            p.classList.remove('animated');
+            p.textContent = p.dataset.original;
+            p.dataset.isAnimated = "false";
+        });
+    });
+</script>
+
 </html>

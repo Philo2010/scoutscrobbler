@@ -2,23 +2,75 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Multi-step Form</title>
-  <link rel="stylesheet" href="scout/style.css">
+  <title>Scout</title>
+  <link rel="stylesheet" href="/scout/style.css">
 </head>
 <body>
   <form id="scouterForm" method="post">
+
+    <!-- Step 0 -->
+     <div class="step active">
+      <h2>Start</h2>
+      Team we facing: <input name="team" id="team" type="number">
+      Match id: <input name="match" id="match" type="number">
+      <div class="buttons">
+        <button type="button" onclick="nextStep()">Next</button>
+      </div>
+    </div>
     
     <!-- Step 1 -->
-    <div class="step active">
+    <div class="step">
       <h2>Auto</h2>
-                L1: <input name="auto-L1" id="auto-L1" type="number"> <br>
-                L2: <input name="auto-L2" id="auto-L2" type="number"> <br>
-                L3: <input name="auto-L3" id="auto-L3" type="number"> <br>
-                L4: <input name="auto-L4" id="auto-L4" type="number"> <br>
-                Algae (Processor): <input name="auto-alpro" id="auto-alpro" type="number"> <br>
-                Algae (Barge): <input name="auto-albar" id="auto-albar" type="number"> <br>
-                Algae (Remove): <input name="auto-alrem" id="auto-alrem" type="number"> <br>
+                <label for="moved">Moved</label>
+                <select name="moved" id="moved">
+                  <option value="yes">Yes</option>
+                  <option value="no">No</option>
+                </select>
+                <div class="number-input">
+                  <label for="auto-L1">L1:</label>
+                  <button type="button" onclick="increment('auto-L1')">+</button>
+                  <input name="auto-L1" id="auto-L1" type="number" value="0" min="0" step="1">
+                  <button type="button" onclick="decrement('auto-L1')">-</button>
+                </div><br>
+                <div class="number-input">
+                  <label for="auto-L2">L2:</label>
+                  <button type="button" onclick="increment('auto-L2')">+</button>
+                  <input name="auto-L2" id="auto-L2" type="number" value="0" min="0" step="1">
+                  <button type="button" onclick="decrement('auto-L2')">-</button>
+                </div><br>
+                <div class="number-input">
+                  <label for="auto-L3">L3:</label>
+                  <button type="button" onclick="increment('auto-L3')">+</button>
+                  <input name="auto-L3" id="auto-L3" type="number" value="0" min="0" step="1">
+                  <button type="button" onclick="decrement('auto-L3')">-</button>
+                </div><br>
+                <div class="number-input">
+                  <label for="auto-L4">L4:</label>
+                  <button type="button" onclick="increment('auto-L4')">+</button>
+                  <input name="auto-L4" id="auto-L4" type="number" value="0" min="0" step="1">
+                  <button type="button" onclick="decrement('auto-L4')">-</button>
+                </div><br>
+                <div class="number-input">
+                  <label for="auto-alpro">Algae (Processor):</label>
+                  <button type="button" onclick="increment('auto-alpro')">+</button>
+                  <input name="auto-alpro" id="auto-alpro" type="number" value="0" min="0" step="1">
+                  <button type="button" onclick="decrement('auto-alpro')">-</button>
+                </div><br>
+                <div class="number-input">
+                  <label for="auto-albar">Algae (Barge):</label>
+                  <button type="button" onclick="increment('auto-albar')">+</button>
+                  <input name="auto-albar" id="auto-albar" type="number" value="0" min="0" step="1">
+                  <button type="button" onclick="decrement('auto-albar')">-</button>
+                </div><br>
+                <div class="number-input">
+                  <label for="auto-alrem">Algae (Remove):</label>
+                  <button type="button" onclick="increment('auto-alrem')">+</button>
+                  <input name="auto-alrem" id="auto-alrem" type="number" value="0" min="0" step="1">
+                  <button type="button" onclick="decrement('auto-alrem')">-</button>
+                </div><br>
+
                 <div class="buttons">
+                  <button type="button" onclick="prevStep()">Back</button>
                   <button type="button" onclick="nextStep()">Next</button>
                 </div>
     </div>
@@ -26,13 +78,48 @@
     <!-- Step 2 -->
     <div class="step">
         <h2>Teleop</h2>
-                L1: <input name="teleop-L1" id="teleop-L1" type="number"> <br>
-                L2: <input name="teleop-L2" id="teleop-L2" type="number"> <br>
-                L3: <input name="teleop-L3" id="teleop-L3" type="number"> <br>
-                L4: <input name="teleop-L4" id="teleop-L4" type="number"> <br>
-                Algae (Processor): <input name="teleop-alpro" id="teleop-alpro" type="number"> <br>
-                Algae (Barge): <input name="teleop-albar" id="teleop-albar" type="number"> <br>
-                Algae (Remove): <input name="teleop-alrem" id="teleop-alrem" type="number"> <br>
+                <div class="number-input">
+                  <label for="teleop-L1">L1:</label>
+                  <button type="button" onclick="increment('teleop-L1')">+</button>
+                  <input name="teleop-L1" id="teleop-L1" type="number" value="0" min="0" step="1">
+                  <button type="button" onclick="decrement('teleop-L1')">-</button>
+                </div><br>
+                <div class="number-input">
+                  <label for="teleop-L2">L2:</label>
+                  <button type="button" onclick="increment('teleop-L2')">+</button>
+                  <input name="teleop-L2" id="teleop-L2" type="number" value="0" min="0" step="1">
+                  <button type="button" onclick="decrement('teleop-L2')">-</button>
+                </div><br>
+                <div class="number-input">
+                  <label for="teleop-L3">L3:</label>
+                  <button type="button" onclick="increment('teleop-L3')">+</button>
+                  <input name="teleop-L3" id="teleop-L3" type="number" value="0" min="0" step="1">
+                  <button type="button" onclick="decrement('teleop-L3')">-</button>
+                </div><br>
+                <div class="number-input">
+                  <label for="teleop-L4">L4:</label>
+                  <button type="button" onclick="increment('teleop-L4')">+</button>
+                  <input name="teleop-L4" id="teleop-L4" type="number" value="0" min="0" step="1">
+                  <button type="button" onclick="decrement('teleop-L4')">-</button>
+                </div><br>
+                <div class="number-input">
+                  <label for="teleop-alpro">Algae (Processor):</label>
+                  <button type="button" onclick="increment('teleop-alpro')">+</button>
+                  <input name="teleop-alpro" id="teleop-alpro" type="number" value="0" min="0" step="1">
+                  <button type="button" onclick="decrement('teleop-alpro')">-</button>
+                </div><br>
+                <div class="number-input">
+                  <label for="teleop-albar">Algae (Barge):</label>
+                  <button type="button" onclick="increment('teleop-albar')">+</button>
+                  <input name="teleop-albar" id="teleop-albar" type="number" value="0" min="0" step="1">
+                  <button type="button" onclick="decrement('teleop-albar')">-</button>
+                </div><br>
+                <div class="number-input">
+                  <label for="teleop-alrem">Algae (Remove):</label>
+                  <button type="button" onclick="increment('teleop-alrem')">+</button>
+                  <input name="teleop-alrem" id="teleop-alrem" type="number" value="0" min="0" step="1">
+                  <button type="button" onclick="decrement('teleop-alrem')">-</button>
+                </div><br>
                 <div class="buttons">
                   <button type="button" onclick="prevStep()">Back</button>
                   <button type="button" onclick="nextStep()">Next</button>
@@ -41,6 +128,11 @@
 
     <!-- Step 3 -->
     <div class="step">
+      <label for="died">Died</label>
+      <select name="died" id="died">
+        <option value="yes">Yes</option>
+        <option value="no">No</option>
+      </select>
       <h3>Defensive ability</h3>
                 <div class="slider-container">
                 <input type="range" name="rating" id="rating" min="1" max="5" step="1" value="3">
@@ -59,7 +151,7 @@
                     <option value="shallow">Shallow</option>
                     <option value="park">Park</option>
                     <option value="none">None</option>
-                </select> 
+                </select>
                 <h3>Comments</h3>
                 <textarea name="comment" id="commit"></textarea>
                 <div class="buttons">
@@ -72,8 +164,22 @@
   </form>
 
   <script>
+    function increment(id) {
+    const input = document.getElementById(id);
+    let current = parseInt(input.value) || 0;
+    input.value = current + 1;
+  }
+
+  function decrement(id) {
+    const input = document.getElementById(id);
+    let current = parseInt(input.value) || 0;
+    if (current > 0) {
+      input.value = current - 1;
+    }
+  }
     let currentStep = 0;
     const steps = document.querySelectorAll(".step");
+    console.log(steps);
 
     function showStep(index) {
       steps.forEach((step, i) => {

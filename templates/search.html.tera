@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Submitted Entries</title>
+    <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+    <h1>Results</h1>
+    {% for entry in entries %}
+        <a href="/get_game/{{ entry.id }}">
+            <div class="buttons">
+                Team: {{ entry.team }} <br>
+                User: {{ entry.user }} <br>
+                Created at: {{ entry.created_at }}
+            </div>
+        </a>
+        <br>
+    {% endfor %}
+</body>
+</html>

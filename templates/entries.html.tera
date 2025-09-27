@@ -2,6 +2,7 @@
 <html>
 <head>
     <title>Submitted Entries</title>
+    <link rel="stylesheet" href="/style.css">
 </head>
 <body>
     <h1>All Scouting Entries</h1>
@@ -9,6 +10,8 @@
         <thead>
             <tr>
                 <th>ID</th>
+                <th>Team</th>
+                <th>User</th>
                 <th>Auto L1</th>
                 <th>Auto L2</th>
                 <th>Auto L3</th>
@@ -32,6 +35,8 @@
         {% for entry in entries %}
             <tr>
                 <td>{{ entry.id }}</td>
+                <td>{{ entry.team }}</td>
+                <td>{{ entry.user }}</td>
 
                 <td>{{ entry.auto_l1 }}</td>
                 <td>{{ entry.auto_l2 }}</td>
@@ -49,8 +54,8 @@
                 <td>{{ entry.teleop_algae_barge }}</td>
                 <td>{{ entry.teleop_algae_remove }}</td>
 
-                <td>{{ entry.climb_type }}</td>
                 <td>{{ entry.defense_rating }}</td>
+                <td>{{ entry.climb_type }}</td>
                 <td>{{ entry.comment }}</td>
             </tr>
         {% endfor %}
