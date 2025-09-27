@@ -15,10 +15,10 @@ mod entries;
 mod user;
 mod login;
 mod search;
-mod get_game;
+mod get_player_match;
 
 
-//Generatic types used all across code base
+//Generatic types used all across code
 
 #[derive(Debug, FromForm)]
 pub struct ScoutingForm {
@@ -150,6 +150,6 @@ async fn rocket() -> _ {
     rocket::build()
     .manage(db_pool)
     .attach(Template::fairing())
-    .mount("/", routes![submit::submit_page, entries::view_entries, user::new_user, login::login, search::search, get_game::get_game])
+    .mount("/", routes![submit::submit_page, entries::view_entries, user::new_user, login::login, search::search, get_player_match::get_player_match])
     .mount("/", FileServer::from(relative!("static")))
 }

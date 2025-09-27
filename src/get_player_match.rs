@@ -4,8 +4,8 @@ use sqlx::SqlitePool;
 
 use crate::{check_if_read, ScoutingEntry, ScoutingEntryBasic};
 
-#[get("/get_game/<id>")]
-pub async fn get_game(pool: &rocket::State<SqlitePool>, jar: &CookieJar<'_>, id: i32) -> Template {
+#[get("/get_player_match/<id>")]
+pub async fn get_player_match(pool: &rocket::State<SqlitePool>, jar: &CookieJar<'_>, id: i32) -> Template {
     let userid_string = match jar.get("uuid") {
         Some(a) =>  a.value(),
         None => {
@@ -26,8 +26,10 @@ pub async fn get_game(pool: &rocket::State<SqlitePool>, jar: &CookieJar<'_>, id:
         se.id,
         se.team,
         se.user,
+        se.matchid,
         se.created_at,
         ad.L1 AS auto_l1, ad.L2 AS auto_l2, ad.L3 AS auto_l3, ad.L4 AS auto_l4,
+        ad.moved,
         ad.algae_processor AS auto_algae_processor,
         ad.algae_barge AS auto_algae_barge,
         ad.algae_remove AS auto_algae_remove,
@@ -35,6 +37,7 @@ pub async fn get_game(pool: &rocket::State<SqlitePool>, jar: &CookieJar<'_>, id:
         td.algae_processor AS teleop_algae_processor,
         td.algae_barge AS teleop_algae_barge,
         td.algae_remove AS teleop_algae_remove,
+        eg.died,
         eg.defense_rating,
         eg.climb_type,
         eg.comment
@@ -55,5 +58,5 @@ pub async fn get_game(pool: &rocket::State<SqlitePool>, jar: &CookieJar<'_>, id:
         },
     };
 
-    return Template::render("get_game", context! { entry });
+    return Template::render("get_player_match", context! { entry });
 }

@@ -2,6 +2,7 @@ CREATE TABLE scouting_entry (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     user TEXT,
     team INTEGER,
+    matchid INTEGER,
     total_score INTEGER,
     created_at TEXT DEFAULT CURRENT_TIMESTAMP
 );

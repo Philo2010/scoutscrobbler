@@ -30,9 +30,11 @@ pub async fn view_entries(db: &State<SqlitePool>, jar: &CookieJar<'_>) -> Templa
         SELECT 
           se.id,
           se.team,
+          se.matchid,
           se.user,
           se.created_at,
           ad.L1 AS auto_l1, ad.L2 AS auto_l2, ad.L3 AS auto_l3, ad.L4 AS auto_l4,
+          ad.moved,
           ad.algae_processor AS auto_algae_processor,
           ad.algae_barge AS auto_algae_barge,
           ad.algae_remove AS auto_algae_remove,
@@ -41,6 +43,7 @@ pub async fn view_entries(db: &State<SqlitePool>, jar: &CookieJar<'_>) -> Templa
           td.algae_barge AS teleop_algae_barge,
           td.algae_remove AS teleop_algae_remove,
           eg.defense_rating,
+          eg.died,
           eg.climb_type,
           eg.comment
         FROM scouting_entry se

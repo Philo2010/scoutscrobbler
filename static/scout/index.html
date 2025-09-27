@@ -7,6 +7,9 @@
 </head>
 <body>
   <form id="scouterForm" method="post">
+    <div id="successMessage" style="display: none; color: green; margin-top: 10px;">
+      ✅ Scouting data submitted successfully
+    </div>
 
     <!-- Step 0 -->
      <div class="step active">
@@ -164,7 +167,7 @@
   </form>
 
   <script>
-    function increment(id) {
+  function increment(id) {
     const input = document.getElementById(id);
     let current = parseInt(input.value) || 0;
     input.value = current + 1;
@@ -201,29 +204,31 @@
       }
     }
     document.getElementById('scouterForm').addEventListener('submit', function(event) {
-            console.log("Sending data!");
-            event.preventDefault();  // Prevent form from submitting the traditional way
+        event.preventDefault();
 
-            // Collect form data
-            const formData = new FormData(this);
+        const formData = new FormData(this);
+        const formObject = {};
+        formData.forEach((value, key) => formObject[key] = value);
 
-            // Send POST request with form data and cookies
-            fetch('/submit', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded',
-                },
-                body: new URLSearchParams(formData).toString(), // Convert FormData to URL-encoded string
-                credentials: 'include', // This ensures that cookies are sent along with the request
-            })
-            .then(data => {
-                console.log('Success:', data);
-                // Optionally, display a success message or reset the form
-            })
-            .catch(error => {
-                console.error('Error:', error);
-            });
+        localStorage.setItem('scoutingFormData', JSON.stringify(formObject));
+
+        fetch('/submit', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: new URLSearchParams(formObject).toString(),
+            credentials: 'include',
+        })
+        .then(response => response.text())
+        .then(text => {
+            if (text.includes("Scouting data submitted successfully")) {
+                localStorage.removeItem('scoutingFormData');
+                document.getElementById('successMessage').style.display = 'block';
+                steps.forEach(element => {
+                  element.classList.remove("active");
+                });
+            }
         });
+    });
   </script>
 </body>
 </html>

@@ -100,19 +100,27 @@ pub async fn submit_page(pool: &rocket::State<SqlitePool>, jar: &CookieJar<'_>, 
 
     // Insert into scouting_entry
     let scouting_id = sqlx::query(
-    "INSERT INTO scouting_entry (user, team) VALUES (?, ?)")
+    "INSERT INTO scouting_entry (user, team, matchid, total_score) VALUES (?, ?, ?, ?)")
     .bind(username)
     .bind(form.team)
+    .bind(form.matchid)
+    .bind(calculate_final_score(&form))
     .execute(pool.inner())
     .await
     .expect("Insert failed")
     .last_insert_rowid();
 
+    let moved = match form.moved.as_str() {
+        "yes" => true,
+        _ => false,
+    };
+
     // Insert auto data
     sqlx::query("
-        INSERT INTO auto_data (scouting_id, L1, L2, L3, L4, algae_processor, algae_barge, algae_remove)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+        INSERT INTO auto_data (moved, scouting_id, L1, L2, L3, L4, algae_processor, algae_barge, algae_remove)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
     ")
+    .bind(moved)
     .bind(scouting_id)
     .bind(form.auto_l1)
     .bind(form.auto_l2)
@@ -142,11 +150,17 @@ pub async fn submit_page(pool: &rocket::State<SqlitePool>, jar: &CookieJar<'_>, 
     .await
     .unwrap();
 
+    let died = match form.died.as_str() {
+        "yes" => true,
+        _ => false
+    };
+
     // Insert endgame
     sqlx::query("
-        INSERT INTO endgame_data (scouting_id, defense_rating, climb_type, comment)
-        VALUES (?, ?, ?, ?)
+        INSERT INTO endgame_data (died, scouting_id, defense_rating, climb_type, comment)
+        VALUES (?, ?, ?, ?, ?)
     ")
+    .bind(died)
     .bind(scouting_id)
     .bind(form.defense_rating)
     .bind(&form.climb_type)

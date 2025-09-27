@@ -13,9 +13,11 @@
     <h1>Game Stats</h1>
     <p>ID: {{ entry.id }}</p>
     <p>Team: {{ entry.team }}</td>
+    <p>Match ID: {{ entry.matchid }}</td>
     <p>User: {{ entry.user }}</td>
 
     <h1>Auto</h1>
+        <p>Moved: {{ entry.moved }}</p>
         <p>L1: {{ entry.auto_l1 }}</p>
         <p>L2: {{ entry.auto_l2 }}</p>
         <p>L3: {{ entry.auto_l3 }}</p>
@@ -33,8 +35,10 @@
         <p>Auto Algae (Barge): {{ entry.teleop_algae_barge }}</p>
         <p>Auto Algae (Remove): {{ entry.teleop_algae_remove }}</p>
 
-    <p>Defense Rating: {{ entry.defense_rating }}</p>
-    <p>Climb Type: {{ entry.climb_type }}</p>
-    <p>Comment: {{ entry.comment }}</p>
+    <h1>Endgame</h1>
+        <p>Died: {{ entry.died }}</p>
+        <p>Defense Rating: {{ entry.defense_rating }}</p>
+        <p>Climb Type: {{ entry.climb_type }}</p>
+        <p>Comment: {{ entry.comment }}</p>
 </body>
 </html>
