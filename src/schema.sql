@@ -61,10 +61,10 @@ CREATE TABLE user_list (
 
 CREATE TABLE matches (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    event_code TEXT NOT NULL UNIQUE,
+    event_code TEXT NOT NULL,
     match_number INTEGER NOT NULL,
     description TEXT NOT NULL,
-    tournament_level TEXT NOT NULL,
+    tournament_level TEXT NOT NULL
 );
 
 CREATE TABLE match_teams (
@@ -72,5 +72,5 @@ CREATE TABLE match_teams (
     team_number INTEGER NOT NULL,
     station TEXT NOT NULL,
     PRIMARY KEY (match_id, station),
-    FOREIGN KEY (match_id) REFERENCES matches(id) ON DELETE CASCADE,
+    FOREIGN KEY (match_id) REFERENCES matches(id) ON DELETE CASCADE
 );

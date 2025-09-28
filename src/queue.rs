@@ -81,27 +81,14 @@ pub async fn insert_schedule(
     event_code: &str,
     schedule: ScheduleData,
 ) -> Result<(), sqlx::Error> {
-    // 1. Insert or get the event
-    sqlx::query("INSERT OR IGNORE INTO events (event_code) VALUES (?)")
-        .bind(event_code)
-        .execute(pool)
-        .await?;
 
-    let row = sqlx::query("SELECT id FROM events WHERE event_code = ?")
-        .bind(event_code)
-        .fetch_one(pool)
-        .await?;
-
-    let event_id: i64 = row.try_get("id")?;
-
-    // 2. Insert matches and their teams
     for m in schedule.Schedule {
         let row = sqlx::query(
-            "INSERT INTO matches (event_id, match_number, description, tournament_level)
+            "INSERT INTO matches (event_code, match_number, description, tournament_level)
              VALUES (?, ?, ?, ?)
              RETURNING id"
         )
-        .bind(event_id)
+        .bind(event_code)
         .bind(m.matchNumber)
         .bind(&m.description)
         .bind(&m.tournamentLevel)
@@ -112,26 +99,13 @@ pub async fn insert_schedule(
 
         // 3. Insert teams and match_teams
         for t in m.teams {
-            // Insert team or get existing (upsert pattern)
-            let row = sqlx::query(
-                "INSERT INTO teams (team_number)
-                 VALUES (?)
-                 ON CONFLICT(team_number) DO UPDATE SET team_number = excluded.team_number
-                 RETURNING id"
-            )
-            .bind(t.teamNumber as i64)
-            .fetch_one(pool)
-            .await?;
-
-            let team_id: i64 = row.try_get("id")?;
-
             // Insert match-team relationship
             sqlx::query(
-                "INSERT OR IGNORE INTO match_teams (match_id, team_id, station)
+                "INSERT OR IGNORE INTO match_teams (match_id, team_number, station)
                  VALUES (?, ?, ?)"
             )
             .bind(match_id)
-            .bind(team_id)
+            .bind(t.teamNumber)
             .bind(&t.station)
             .execute(pool)
             .await?;
