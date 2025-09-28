@@ -166,23 +166,57 @@
 
   </form>
 
-  <script>
-  function increment(id) {
-    const input = document.getElementById(id);
-    let current = parseInt(input.value) || 0;
-    input.value = current + 1;
-  }
+   <script>
+    // Save form data to localStorage whenever an input is changed
+    document.querySelectorAll("input, select, textarea").forEach(element => {
+      element.addEventListener('input', () => saveFormData());
+    });
 
-  function decrement(id) {
-    const input = document.getElementById(id);
-    let current = parseInt(input.value) || 0;
-    if (current > 0) {
-      input.value = current - 1;
+    function saveFormData() {
+      const formData = new FormData(document.getElementById('scouterForm'));
+      const formObject = {};
+      formData.forEach((value, key) => formObject[key] = value);
+      localStorage.setItem('scoutingFormData', JSON.stringify(formObject));
     }
-  }
+
+    // Restore data from localStorage
+    function restoreFormData() {
+      const formData = JSON.parse(localStorage.getItem('scoutingFormData'));
+      if (formData) {
+        for (const [key, value] of Object.entries(formData)) {
+          const field = document.querySelector(`[name="${key}"]`);
+          if (field) {
+            if (field.type === 'number') {
+              field.value = value;
+            } else if (field.type === 'range') {
+              field.value = value;
+            } else if (field.type === 'textarea' || field.type === 'select-one') {
+              field.value = value;
+            }
+          }
+        }
+      }
+    }
+
+    // Handle increment and decrement
+    function increment(id) {
+      const input = document.getElementById(id);
+      let current = parseInt(input.value) || 0;
+      input.value = current + 1;
+      saveFormData();
+    }
+
+    function decrement(id) {
+      const input = document.getElementById(id);
+      let current = parseInt(input.value) || 0;
+      if (current > 0) {
+        input.value = current - 1;
+        saveFormData();
+      }
+    }
+
     let currentStep = 0;
     const steps = document.querySelectorAll(".step");
-    console.log(steps);
 
     function showStep(index) {
       steps.forEach((step, i) => {
@@ -203,32 +237,36 @@
         showStep(currentStep);
       }
     }
+
+    // Handle form submission
     document.getElementById('scouterForm').addEventListener('submit', function(event) {
-        event.preventDefault();
+      event.preventDefault();
 
-        const formData = new FormData(this);
-        const formObject = {};
-        formData.forEach((value, key) => formObject[key] = value);
+      const formData = new FormData(this);
+      const formObject = {};
+      formData.forEach((value, key) => formObject[key] = value);
 
-        localStorage.setItem('scoutingFormData', JSON.stringify(formObject));
-
-        fetch('/submit', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-            body: new URLSearchParams(formObject).toString(),
-            credentials: 'include',
-        })
-        .then(response => response.text())
-        .then(text => {
-            if (text.includes("Scouting data submitted successfully")) {
-                localStorage.removeItem('scoutingFormData');
-                document.getElementById('successMessage').style.display = 'block';
-                steps.forEach(element => {
-                  element.classList.remove("active");
-                });
-            }
-        });
+      fetch('/submit', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: new URLSearchParams(formObject).toString(),
+        credentials: 'include',
+      })
+      .then(response => response.text())
+      .then(text => {
+        if (text.includes("Scouting data submitted successfully")) {
+          localStorage.removeItem('scoutingFormData');
+          document.getElementById('successMessage').style.display = 'block';
+          steps.forEach(element => {
+            element.classList.remove("active");
+          });
+        }
+      });
     });
+
+    // Restore form data when the page loads
+    document.addEventListener('DOMContentLoaded', restoreFormData);
+
   </script>
 </body>
 </html>

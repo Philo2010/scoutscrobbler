@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+
+<html>
+    <head>
+        <title>Error</title>
+        <style>
+            body {
+                background-color: #2a2727;
+                color: red;
+                font-size: 30px;
+                font-family: monospace;
+                margin: auto;
+                text-align: center;
+                max-width: fit-content; 
+                margin: auto;
+                height: 200px;
+                line-height: 200px;
+            }
+        </style>
+    </head>
+    <body>
+        Error: { error }
+    </body>
+</html>

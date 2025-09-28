@@ -8,7 +8,6 @@ const bcrypt_cost: u32 = 12;
 pub struct UserRequestCreate {
     #[field(name = "passcreate")] pub passcreate: String,
     #[field(name = "username")] pub username: String,
-    #[field(name = "password")] pub password: String,
     #[field(name = "can_write")] pub can_write: String,
     #[field(name = "can_read")] pub can_read: String,
 }
@@ -39,22 +38,16 @@ pub async fn new_user(
         _ => return "Invalid form: can_write must be 'true' or 'false'.",
     };
 
-    // Hash the password
-    let passhash = match bcrypt::hash(&form_data.password, 12) {
-        Ok(hash) => hash,
-        Err(_) => return "Hash failed while processing password.",
-    };
     let uuid = Uuid::new_v4();
     let id: Vec<u8> = uuid.as_bytes().to_vec();
 
     // Execute the SQL query
     let result = sqlx::query("
-        INSERT INTO user_list (id, username, passhash, can_write, can_read)
-        VALUES (?, ?, ?, ?, ?)
+        INSERT INTO user_list (id, username, can_write, can_read)
+        VALUES (?, ?, ?, ?)
     ")
     .bind(id)  // UUID as bytes for the BLOB column
     .bind(&form_data.username)       // Bind username
-    .bind(passhash)                  // Bind hashed password
     .bind(can_write)                  // Bind can_read as i32 (1 for true, 0 for false)
     .bind(can_read)                 // Bind can_write as i32 (1 for true, 0 for false)
     .execute(pool.inner())          // Execute query on the pool

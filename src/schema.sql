@@ -48,7 +48,6 @@ CREATE TABLE endgame_data (
 CREATE TABLE user_list (
     id BLOB PRIMARY KEY,
     username TEXT NOT NULL UNIQUE,
-    passhash TEXT NOT NULL,
     can_write BOOL NOT NULL,
     can_read BOOL NOT NULL
 );
