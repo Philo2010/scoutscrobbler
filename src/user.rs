@@ -10,6 +10,7 @@ pub struct UserRequestCreate {
     #[field(name = "username")] pub username: String,
     #[field(name = "can_write")] pub can_write: String,
     #[field(name = "can_read")] pub can_read: String,
+    #[field(name = "is_admin")] pub is_admin: String
 }
 
 
@@ -38,18 +39,26 @@ pub async fn new_user(
         _ => return "Invalid form: can_write must be 'true' or 'false'.",
     };
 
+    //Parse is_admin
+    let is_admin: i32 = match form_data.is_admin.as_str() {
+        "true" => 1,
+        "false" => 0,
+        _ => return "Invalid form: is admin must be 'true' or 'false'.",
+    };
+
     let uuid = Uuid::new_v4();
     let id: Vec<u8> = uuid.as_bytes().to_vec();
 
     // Execute the SQL query
     let result = sqlx::query("
-        INSERT INTO user_list (id, username, can_write, can_read)
-        VALUES (?, ?, ?, ?)
+        INSERT INTO user_list (id, username, can_write, can_read, is_admin)
+        VALUES (?, ?, ?, ?, ?)
     ")
     .bind(id)  // UUID as bytes for the BLOB column
     .bind(&form_data.username)       // Bind username
     .bind(can_write)                  // Bind can_read as i32 (1 for true, 0 for false)
     .bind(can_read)                 // Bind can_write as i32 (1 for true, 0 for false)
+    .bind(is_admin)
     .execute(pool.inner())          // Execute query on the pool
     .await;
 

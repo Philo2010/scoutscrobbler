@@ -19,6 +19,6 @@
         </style>
     </head>
     <body>
-        Error: { error }
+        Error: {{ error }}
     </body>
 </html>

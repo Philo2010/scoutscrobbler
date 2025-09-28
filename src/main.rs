@@ -1,6 +1,7 @@
 #[macro_use] extern crate rocket;
 
 use std::str::FromStr;
+use reqwest::Client;
 use rocket::fs::FileServer;
 use rocket::serde::Serialize;
 use rocket::State;
@@ -9,6 +10,7 @@ use sqlx::Row;
 use rocket::fs::relative;
 use rocket_db_pools::sqlx::{self, SqlitePool};
 use sqlx::types::Uuid;
+use base64::{engine::general_purpose, Engine};
 
 mod submit;
 mod entries;
@@ -17,6 +19,14 @@ mod login;
 mod search;
 mod get_player_match;
 mod graph;
+mod verify;
+mod queue;
+
+//Make the auth header
+
+// username:password = "***REMOVED***"
+// Base64-encoded = "REDACTED"
+pub const BASIC_AUTH_HEADER: &str = "***REMOVED***";
 
 
 //Generatic types used all across code
@@ -147,10 +157,20 @@ async fn check_if_read(userid_string: &str, pool: &State<SqlitePool>) -> Option<
 //Boiler plate
 #[launch]
 async fn rocket() -> _ {
+   //Create a rewqest client for speed and share
+   let client = Client::builder()
+        .build()
+        .expect("Could not build http client! FATAL!!!");
+    let mut auth_headers =  reqwest::header::HeaderMap::new();
+    auth_headers.insert("Authorization", BASIC_AUTH_HEADER.parse().expect("Error with http header"));
+    auth_headers.insert("If-Modified-Since", "".parse().expect("Error with http header"));
+
     let db_pool = SqlitePool::connect("sqlite:main.sqlite").await.expect("Failed to connect to DB");
     rocket::build()
     .manage(db_pool)
+    .manage(client)
+    .manage(auth_headers)
     .attach(Template::fairing())
-    .mount("/", routes![submit::submit_page, entries::view_entries, user::new_user, login::login, search::search, get_player_match::get_player_match, graph::graph])
+    .mount("/", routes![submit::submit_page, entries::view_entries, user::new_user, login::login, search::search, get_player_match::get_player_match, graph::graph, queue::queue_form])
     .mount("/", FileServer::from(relative!("static")))
 }

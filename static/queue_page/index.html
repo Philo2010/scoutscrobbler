@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Queue</title>
+    <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+
+    <h2>Graph team</h2>
+
+    <form action="/queue" method="POST">
+        <label for="event">Event:<label><br>
+        <input type="text" id="event" name="event" required><br><br>
+        
+        <label for="tournament_level">Tournament Level:<label><br>
+        <select name="tournament_level" id="tournament_level">
+            <option value="qual">Qualification</option>
+            <option value="Playoff">Playoff</option>
+        </select><br><br>
+
+        <label for="season">Season:<label><br>
+        <input type="number" id="season" name="season" required><br><br>
+
+        <input type="submit" value="season">
+    </form>
+
+</body>
+</html>

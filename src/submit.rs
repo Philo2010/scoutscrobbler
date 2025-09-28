@@ -100,11 +100,12 @@ pub async fn submit_page(pool: &rocket::State<SqlitePool>, jar: &CookieJar<'_>, 
 
     // Insert into scouting_entry
     let scouting_id = sqlx::query(
-    "INSERT INTO scouting_entry (user, team, matchid, total_score) VALUES (?, ?, ?, ?)")
+    "INSERT INTO scouting_entry (user, team, matchid, total_score, is_verified) VALUES (?, ?, ?, ?, ?)")
     .bind(username)
     .bind(form.team)
     .bind(form.matchid)
     .bind(calculate_final_score(&form))
+    .bind(1) //Not verifed now
     .execute(pool.inner())
     .await
     .expect("Insert failed")

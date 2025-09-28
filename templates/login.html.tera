@@ -13,6 +13,7 @@
             document.cookie = "can_write={{ can_write }};";
             document.cookie = "can_read={{ can_read }};";
             document.cookie = "name={{ username }};";
+            document.cookie = "is_admin={{ is_admin }};"
         </script>
     </body>
 </html>
