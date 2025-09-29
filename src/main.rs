@@ -21,6 +21,7 @@ mod get_player_match;
 mod graph;
 mod verify;
 mod queue;
+mod scout;
 
 //Make the auth header
 
@@ -36,6 +37,10 @@ pub struct ScoutingForm {
     //Metadata
     #[field(name = "team")] pub team: i32,
     #[field(name = "match")] pub matchid: i32,
+    #[field(name = "event-code")] pub event_code: String,
+    #[field(name = "level")] pub tournament_level: String,
+    #[field(name = "station")] pub station: String,
+    #[field(name = "id")] pub id: i32,
 
     // Auto
     #[field(name = "moved")] pub moved: String,
@@ -68,6 +73,7 @@ struct ScoutingEntry {
     team: i32,
     user: Option<String>,
     matchid: i32,
+    total_score: i32,
     created_at: String,
 
     moved: bool,
@@ -114,8 +120,7 @@ async fn check_if_read(userid_string: &str, pool: &State<SqlitePool>) -> Option<
     let userid = match Uuid::from_str(userid_string) {
         Ok(a) => a,
         Err(_) => {
-            let entries: Vec<ScoutingEntry> = Vec::new();
-            return Some(Template::render("entries", context! { entries }));
+           return Some(Template::render("error", context! { error: "Not logined" }));
         },
     };
 
@@ -135,12 +140,10 @@ async fn check_if_read(userid_string: &str, pool: &State<SqlitePool>) -> Option<
             a.get::<bool, _>(0)
         },
         Ok(None) => {
-            let entries: Vec<ScoutingEntry> = Vec::new();
-            return  Some(Template::render("entries", context! { entries }));
+            return Some(Template::render("error", context! { error: "No user found" }));
         }
         Err(_) => {
-            let entries: Vec<ScoutingEntry> = Vec::new();
-            return  Some(Template::render("entries", context! { entries }));
+            return Some(Template::render("error", context! { error: "Unkown error" }));
         },
     };
 
@@ -166,11 +169,16 @@ async fn rocket() -> _ {
     auth_headers.insert("If-Modified-Since", "".parse().expect("Error with http header"));
 
     let db_pool = SqlitePool::connect("sqlite:main.sqlite").await.expect("Failed to connect to DB");
+
+    sqlx::query("PRAGMA foreign_keys = ON;")
+    .execute(&db_pool)
+    .await.expect("Could not enable foreign keys");
+
     rocket::build()
     .manage(db_pool)
     .manage(client)
     .manage(auth_headers)
     .attach(Template::fairing())
-    .mount("/", routes![submit::submit_page, entries::view_entries, user::new_user, login::login, search::search, get_player_match::get_player_match, graph::graph, queue::queue_form])
+    .mount("/", routes![submit::submit_page, entries::view_entries, user::new_user, login::login, search::search, get_player_match::get_player_match, graph::graph, queue::queue_form, scout::scout])
     .mount("/", FileServer::from(relative!("static")))
 }

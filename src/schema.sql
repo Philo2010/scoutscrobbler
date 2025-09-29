@@ -68,9 +68,9 @@ CREATE TABLE matches (
 );
 
 CREATE TABLE match_teams (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
     match_id INTEGER NOT NULL,
     team_number INTEGER NOT NULL,
     station TEXT NOT NULL,
-    PRIMARY KEY (match_id, station),
     FOREIGN KEY (match_id) REFERENCES matches(id) ON DELETE CASCADE
 );

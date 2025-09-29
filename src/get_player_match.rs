@@ -9,8 +9,7 @@ pub async fn get_player_match(pool: &rocket::State<SqlitePool>, jar: &CookieJar<
     let userid_string = match jar.get("uuid") {
         Some(a) =>  a.value(),
         None => {
-            let entries: Vec<ScoutingEntryBasic> = Vec::new();
-            return Template::render("entries", context! { entries });
+            return Template::render("error", context! { error: "Not logined" });
         },
     };
 
@@ -27,6 +26,7 @@ pub async fn get_player_match(pool: &rocket::State<SqlitePool>, jar: &CookieJar<
         se.team,
         se.user,
         se.matchid,
+        se.total_score,
         se.created_at,
         ad.L1 AS auto_l1, ad.L2 AS auto_l2, ad.L3 AS auto_l3, ad.L4 AS auto_l4,
         ad.moved,
@@ -52,9 +52,8 @@ pub async fn get_player_match(pool: &rocket::State<SqlitePool>, jar: &CookieJar<
     .fetch_one(pool.inner())
     .await {
         Ok(a) => a,
-        Err(_) => {
-            let entries: Vec<ScoutingEntryBasic> = Vec::new();
-            return Template::render("entries", context! { entries });
+        Err(a) => {
+            return Template::render("error", context! { error: "Database Error" });
         },
     };
 

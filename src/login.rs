@@ -40,8 +40,8 @@ pub async fn login(pool: &State<SqlitePool>, form_data: Form<UserRequestLogin>) 
             };
             (user_id, can_read, can_write, is_admin)
         },
-        Ok(None) => {return Template::render("login", context! [state: "No user found", uuid: "", can_read: "", can_write: "", username: ""]);}, // No user found
-        Err(_) => {return Template::render("login", context! [state: "Database Error", uuid: "", can_read: "", can_write: "", username: ""]);}, // Database error occurred
+        Ok(None) => {return Template::render("login", context! [state: "No user found", uuid: "", can_read: "", can_write: "", username: "", is_admin: ""]);}, // No user found
+        Err(_) => {return Template::render("login", context! [state: "Database Error", uuid: "", can_read: "", can_write: "", username: "", is_admin: ""]);}, // Database error occurred
     };
     
 

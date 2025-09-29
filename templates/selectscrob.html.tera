@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Match Selector</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f0f2f5;
+      margin: 0;
+      padding: 20px;
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 25px;
+    }
+
+    .match-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 15px;
+      justify-content: center;
+    }
+
+    .match-card {
+      border: 2px solid #ccc;
+      border-radius: 10px;
+      padding: 15px;
+      min-width: 240px;
+      max-width: 300px;
+      background: #fff;
+      box-shadow: 2px 2px 6px rgba(0,0,0,0.15);
+      transition: transform 0.15s ease-in-out;
+    }
+
+    .match-card:hover {
+      transform: scale(1.03);
+    }
+
+    .match-card h2 {
+      margin: 0 0 8px;
+      font-size: 1.15em;
+      color: #333;
+    }
+
+    .match-card p {
+      margin: 4px 0;
+      font-size: 0.9em;
+      color: #666;
+    }
+
+    .team-link {
+      display: inline-block;
+      margin: 6px 6px 0 0;
+      padding: 8px 12px;
+      border-radius: 6px;
+      color: white;
+      text-decoration: none;
+      font-weight: bold;
+      transition: opacity 0.15s ease-in-out;
+    }
+
+    .team-link.red1,
+    .team-link.red2,
+    .team-link.red3 {
+      background: crimson;
+    }
+
+    .team-link.blue1,
+    .team-link.blue2,
+    .team-link.blue3 {
+      background: royalblue;
+    }
+
+    .team-link.green1,
+    .team-link.green2,
+    .team-link.green3 {
+      background: seagreen;
+    }
+
+    .team-link:hover {
+      opacity: 0.8;
+    }
+  </style>
+</head>
+<body>
+  <h1>Select a Match</h1>
+  <div class="match-list">
+    {% for match in matches %}
+      <div class="match-card">
+        <h2>{{ match.description }} ({{ match.tournamentLevel }})</h2>
+        <p>Event: {{ match.event_code }}</p>
+        <p>Match #{{ match.matchNumber }}</p>
+
+        {% for team in match.teams %}
+          <a
+            class="team-link {{ team.station | lower }}"
+            href="/scout_site?bar={{ team.station }}&team={{ team.teamNumber }}&matchid={{ match.matchNumber }}&eventcode={{ match.event_code }}&level={{ match.tournamentLevel }}&id={{ team.id }}"
+          >
+            {{ team.station }} - Team {{ team.teamNumber }}
+          </a>
+        {% endfor %}
+      </div>
+    {% endfor %}
+  </div>
+</body>
+</html>

@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Dynamic Top Bar</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: sans-serif;
+    }
+    #topbar {
+      width: 100%;
+      padding: 15px;
+      color: white;
+      font-weight: bold;
+      text-align: center;
+    }
+    .red { background: crimson; }
+    .blue { background: royalblue; }
+    .green { background: seagreen; }
+  </style>
+    <link rel="stylesheet" href="/scout/style.css">
+</head>
+<body id="bodys">
+  <div id="topbar">Top Bar (default)</div>
+  <main style="padding:20px;">
+    <div id="successMessage" style="display: none; color: green; margin-top: 10px;">
+      Scouting data submitted successfully
+    </div>
+    
+    <form id="scouterForm" method="post">
+        <!-- Step 1 -->
+        <div class="step active">
+        <h2>Auto</h2>
+                    <label for="moved">Moved</label>
+                    <select name="moved" id="moved">
+                    <option value="yes">Yes</option>
+                    <option value="no">No</option>
+                    </select> <br>
+                    <div class="number-input">
+                    <label for="auto-L1">L1:</label>
+                    <button type="button" onclick="increment('auto-L1')">+</button>
+                    <input name="auto-L1" id="auto-L1" type="number" value="0" min="0" step="1">
+                    <button type="button" onclick="decrement('auto-L1')">-</button>
+                    </div><br>
+                    <div class="number-input">
+                    <label for="auto-L2">L2:</label>
+                    <button type="button" onclick="increment('auto-L2')">+</button>
+                    <input name="auto-L2" id="auto-L2" type="number" value="0" min="0" step="1">
+                    <button type="button" onclick="decrement('auto-L2')">-</button>
+                    </div><br>
+                    <div class="number-input">
+                    <label for="auto-L3">L3:</label>
+                    <button type="button" onclick="increment('auto-L3')">+</button>
+                    <input name="auto-L3" id="auto-L3" type="number" value="0" min="0" step="1">
+                    <button type="button" onclick="decrement('auto-L3')">-</button>
+                    </div><br>
+                    <div class="number-input">
+                    <label for="auto-L4">L4:</label>
+                    <button type="button" onclick="increment('auto-L4')">+</button>
+                    <input name="auto-L4" id="auto-L4" type="number" value="0" min="0" step="1">
+                    <button type="button" onclick="decrement('auto-L4')">-</button>
+                    </div><br>
+                    <div class="number-input">
+                    <label for="auto-alpro">Algae (Processor):</label>
+                    <button type="button" onclick="increment('auto-alpro')">+</button>
+                    <input name="auto-alpro" id="auto-alpro" type="number" value="0" min="0" step="1">
+                    <button type="button" onclick="decrement('auto-alpro')">-</button>
+                    </div><br>
+                    <div class="number-input">
+                    <label for="auto-albar">Algae (Barge):</label>
+                    <button type="button" onclick="increment('auto-albar')">+</button>
+                    <input name="auto-albar" id="auto-albar" type="number" value="0" min="0" step="1">
+                    <button type="button" onclick="decrement('auto-albar')">-</button>
+                    </div><br>
+                    <div class="number-input">
+                    <label for="auto-alrem">Algae (Remove):</label>
+                    <button type="button" onclick="increment('auto-alrem')">+</button>
+                    <input name="auto-alrem" id="auto-alrem" type="number" value="0" min="0" step="1">
+                    <button type="button" onclick="decrement('auto-alrem')">-</button>
+                    </div><br>
+
+                    <div class="buttons">
+                    <button type="button" onclick="prevStep()">Back</button>
+                    <button type="button" onclick="nextStep()">Next</button>
+                    </div>
+        </div>
+
+        <!-- Step 2 -->
+        <div class="step">
+            <h2>Teleop</h2>
+                    <div class="number-input">
+                    <label for="teleop-L1">L1:</label>
+                    <button type="button" onclick="increment('teleop-L1')">+</button>
+                    <input name="teleop-L1" id="teleop-L1" type="number" value="0" min="0" step="1">
+                    <button type="button" onclick="decrement('teleop-L1')">-</button>
+                    </div><br>
+                    <div class="number-input">
+                    <label for="teleop-L2">L2:</label>
+                    <button type="button" onclick="increment('teleop-L2')">+</button>
+                    <input name="teleop-L2" id="teleop-L2" type="number" value="0" min="0" step="1">
+                    <button type="button" onclick="decrement('teleop-L2')">-</button>
+                    </div><br>
+                    <div class="number-input">
+                    <label for="teleop-L3">L3:</label>
+                    <button type="button" onclick="increment('teleop-L3')">+</button>
+                    <input name="teleop-L3" id="teleop-L3" type="number" value="0" min="0" step="1">
+                    <button type="button" onclick="decrement('teleop-L3')">-</button>
+                    </div><br>
+                    <div class="number-input">
+                    <label for="teleop-L4">L4:</label>
+                    <button type="button" onclick="increment('teleop-L4')">+</button>
+                    <input name="teleop-L4" id="teleop-L4" type="number" value="0" min="0" step="1">
+                    <button type="button" onclick="decrement('teleop-L4')">-</button>
+                    </div><br>
+                    <div class="number-input">
+                    <label for="teleop-alpro">Algae (Processor):</label>
+                    <button type="button" onclick="increment('teleop-alpro')">+</button>
+                    <input name="teleop-alpro" id="teleop-alpro" type="number" value="0" min="0" step="1">
+                    <button type="button" onclick="decrement('teleop-alpro')">-</button>
+                    </div><br>
+                    <div class="number-input">
+                    <label for="teleop-albar">Algae (Barge):</label>
+                    <button type="button" onclick="increment('teleop-albar')">+</button>
+                    <input name="teleop-albar" id="teleop-albar" type="number" value="0" min="0" step="1">
+                    <button type="button" onclick="decrement('teleop-albar')">-</button>
+                    </div><br>
+                    <div class="number-input">
+                    <label for="teleop-alrem">Algae (Remove):</label>
+                    <button type="button" onclick="increment('teleop-alrem')">+</button>
+                    <input name="teleop-alrem" id="teleop-alrem" type="number" value="0" min="0" step="1">
+                    <button type="button" onclick="decrement('teleop-alrem')">-</button>
+                    </div><br>
+                    <div class="buttons">
+                    <button type="button" onclick="prevStep()">Back</button>
+                    <button type="button" onclick="nextStep()">Next</button>
+                    </div>
+        </div>
+
+        <!-- Step 3 -->
+        <div class="step">
+        <h3>Defensive ability</h3>
+                    <label for="died">Died</label>
+                    <select name="died" id="died">
+                        <option value="yes">Yes</option>
+                        <option value="no">No</option>
+                    </select>
+                    <div class="slider-container">
+                    <input type="range" name="rating" id="rating" min="1" max="5" step="1" value="3">
+                    <div class="ticks">
+                    <span>1</span>
+                    <span>2</span>
+                    <span>3</span>
+                    <span>4</span>
+                    <span>5</span>
+                    </div>
+                </div>
+                    <br>
+                    <label for="climb">Climb</label>
+                    <select name="climb" id="climb">
+                        <option value="deep">Deep</option>
+                        <option value="shallow">Shallow</option>
+                        <option value="park">Park</option>
+                        <option value="none">None</option>
+                    </select>
+                    <h3>Comments</h3>
+                    <textarea name="comment" id="commit"></textarea>
+                    <div class="buttons">
+                    <button type="button" onclick="prevStep()">Back</button>
+                    </div>
+                    <br>
+                    <input type="submit">
+                </form>
+  </main>
+
+  <script>
+    // Restore form data when the page loads
+    document.addEventListener('DOMContentLoaded', restoreFormData);
+
+    // Get query parameter
+    const params = new URLSearchParams(window.location.search);
+    const station = params.get("bar");
+    const team = params.get("team");
+    const match_id = params.get("matchid");
+    const event_code = params.get("eventcode");
+    const level = params.get("level");
+    const id = params.get("id");
+
+
+    const topbar = document.getElementById("topbar");
+
+    if (station) {
+      topbar.textContent = `Your currently Scouting ${station}`;
+      topbar.classList.add(station.replace(/[0-9]/g, '')); // matches CSS classes: red, blue, green
+    }
+
+    if (!station || !params || !team || !match_id || !event_code || !level || !id) {
+        //Something is emtity
+        document.getElementById("bodys").innerHTML = "<p>INVAILD FORM PLEASE CONTACT PHILIP</p>"
+    }
+
+    // Save form data to localStorage whenever an input is changed
+    document.querySelectorAll("input, select, textarea").forEach(element => {
+      element.addEventListener('input', () => saveFormData());
+    });
+
+    function saveFormData() {
+      const formData = new FormData(document.getElementById('scouterForm'));
+      const formObject = {};
+      formData.forEach((value, key) => formObject[key] = value);
+      localStorage.setItem('scoutingFormData', JSON.stringify(formObject));
+    }
+
+    // Restore data from localStorage
+    function restoreFormData() {
+      const formData = JSON.parse(localStorage.getItem('scoutingFormData'));
+      if (formData) {
+        for (const [key, value] of Object.entries(formData)) {
+          const field = document.querySelector(`[name="${key}"]`);
+          if (field) {
+            if (field.type === 'number') {
+              field.value = value;
+            } else if (field.type === 'range') {
+              field.value = value;
+            } else if (field.type === 'textarea' || field.type === 'select-one') {
+              field.value = value;
+            }
+          }
+        }
+      }
+    }
+
+    // Handle increment and decrement
+    function increment(id) {
+      const input = document.getElementById(id);
+      let current = parseInt(input.value) || 0;
+      input.value = current + 1;
+      saveFormData();
+    }
+
+    function decrement(id) {
+      const input = document.getElementById(id);
+      let current = parseInt(input.value) || 0;
+      if (current > 0) {
+        input.value = current - 1;
+        saveFormData();
+      }
+    }
+
+    let currentStep = 0;
+    const steps = document.querySelectorAll(".step");
+
+    function showStep(index) {
+      steps.forEach((step, i) => {
+        step.classList.toggle("active", i === index);
+      });
+    }
+
+    function nextStep() {
+      if (currentStep < steps.length - 1) {
+        currentStep++;
+        showStep(currentStep);
+      }
+    }
+
+    function prevStep() {
+      if (currentStep > 0) {
+        currentStep--;
+        showStep(currentStep);
+      }
+    }
+
+    // Handle form submission
+    document.getElementById('scouterForm').addEventListener('submit', function(event) {
+      event.preventDefault();
+
+      const formData = new FormData(this);
+      const formObject = {};
+      formData.forEach((value, key) => formObject[key] = value);
+
+
+      formObject["station"] = station;
+      formObject["level"] = level;
+      formObject["event-code"] = event_code;
+      formObject["match"] = match_id;
+      formObject["team"] = team;
+      console.log(team);
+      formObject["id"] = id;
+
+      fetch('/submit', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: new URLSearchParams(formObject).toString(),
+        credentials: 'include',
+      })
+      .then(response => response.text())
+      .then(text => {
+        if (text.includes("Scouting data submitted successfully")) {
+          localStorage.removeItem('scoutingFormData');
+          document.getElementById('successMessage').style.display = 'block';
+          steps.forEach(element => {
+            element.classList.remove("active");
+          });
+        }
+      });
+    });
+  </script>
+</body>
+</html>

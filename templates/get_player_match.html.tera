@@ -13,8 +13,9 @@
     <h1>Game Stats</h1>
     <p>ID: {{ entry.id }}</p>
     <p>Team: {{ entry.team }}</td>
-    <p>Match ID: {{ entry.matchid }}</td>
-    <p>User: {{ entry.user }}</td>
+    <p>Match ID: {{ entry.matchid }}</p>
+    <p>User: {{ entry.user }}</p>
+    <p>Total Score: {{ entry.total_score }}</p>
 
     <h1>Auto</h1>
         <p>Moved: {{ entry.moved }}</p>

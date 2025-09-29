@@ -21,8 +21,7 @@ pub async fn search(pool: &State<SqlitePool>, jar: &CookieJar<'_>,
     let userid_string = match jar.get("uuid") {
         Some(a) =>  a.value(),
         None => {
-            let entries: Vec<ScoutingEntryBasic> = Vec::new();
-            return Template::render("entries", context! { entries });
+            return Template::render("error", context! { error: "Not logined" });
         },
     };
 
@@ -49,8 +48,7 @@ pub async fn search(pool: &State<SqlitePool>, jar: &CookieJar<'_>,
     match list {
         Ok(a) => Template::render("search", context! {entries: a}),
         Err(_) => {
-            let entries: Vec<ScoutingEntryBasic> = Vec::new();
-            return Template::render("entries", context! { entries });
+            return Template::render("error", context! { error: "Unkown error" });
         },
     }
 }

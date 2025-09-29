@@ -5,7 +5,7 @@ use reqwest::header::HeaderMap;
 use reqwest::{Client, Method};
 use rocket::{form::Form, http::CookieJar, State};
 use rocket_dyn_templates::{context, Template};
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 use sqlx::{SqlitePool, Row};
 use sqlx::types::Uuid;
 
@@ -24,19 +24,19 @@ struct ScheduleData {
     Schedule: Vec<Match>,
 }
 
-#[derive(Debug, Deserialize)]
-struct Match {
+#[derive(Debug, Deserialize, Serialize)]
+pub struct Match {
     // We omit `matchNumber` since we don't care about it
-    description: String,
-    matchNumber: i32,
-    tournamentLevel: String,
-    teams: Vec<Team>,
+    pub description: String,
+    pub matchNumber: i32,
+    pub tournamentLevel: String,
+    pub teams: Vec<Team>,
 }
 
-#[derive(Debug, Deserialize)]
-struct Team {
-    teamNumber: u32,
-    station: String,
+#[derive(Debug, Deserialize, Serialize)]
+pub struct Team {
+    pub teamNumber: u32,
+    pub station: String,
 }
 
 async fn check_if_admin(userid_string: &str, pool: &State<SqlitePool>) -> Option<Template> {
@@ -111,7 +111,6 @@ pub async fn insert_schedule(
             .await?;
         }
     }
-
     Ok(())
 }
 
