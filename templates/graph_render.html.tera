@@ -8,7 +8,13 @@
 </head>
 <body>
     <h2>Team Score Over Time</h2>
-    <canvas id="lineChart" width="800" height="400"></canvas>
+    <canvas id="lineChartTotal" width="800" height="400"></canvas>
+
+    <h2>Auto Score Over Time</h2>
+    <canvas id="lineChartAuto" width="800" height="400"></canvas>
+
+    <h2>Teleop Score Over Time</h2>
+    <canvas id="lineChartTeleop" width="800" height="400"></canvas>
 
     <script>
         const labels = [
@@ -17,7 +23,8 @@
             {% endfor %}
         ];
 
-        const data = {
+        // total score
+        const dataTotal = {
             labels: labels,
             datasets: [{
                 label: 'Total Score',
@@ -32,32 +39,77 @@
             }]
         };
 
-        const config = {
+        // auto score
+        const dataAuto = {
+            labels: labels,
+            datasets: [{
+                label: 'Auto Score',
+                data: [
+                    {% for item in team_data %}
+                        {{ item.auto_total }}{% if not loop.last %},{% endif %}
+                    {% endfor %}
+                ],
+                fill: false,
+                borderColor: 'rgb(255, 99, 132)',
+                tension: 0.1
+            }]
+        };
+
+        // teleop score
+        const dataTeleop = {
+            labels: labels,
+            datasets: [{
+                label: 'Teleop Score',
+                data: [
+                    {% for item in team_data %}
+                        {{ item.teleop_total }}{% if not loop.last %},{% endif %}
+                    {% endfor %}
+                ],
+                fill: false,
+                borderColor: 'rgb(54, 162, 235)',
+                tension: 0.1
+            }]
+        };
+
+        const configTotal = {
             type: 'line',
-            data: data,
+            data: dataTotal,
             options: {
                 responsive: true,
                 scales: {
-                    x: {
-                        title: {
-                            display: true,
-                            text: 'Date'
-                        }
-                    },
-                    y: {
-                        title: {
-                            display: true,
-                            text: 'Score'
-                        }
-                    }
+                    x: { title: { display: true, text: 'Date' } },
+                    y: { title: { display: true, text: 'Score' } }
                 }
             }
         };
 
-        new Chart(
-            document.getElementById('lineChart'),
-            config
-        );
+        const configAuto = {
+            type: 'line',
+            data: dataAuto,
+            options: {
+                responsive: true,
+                scales: {
+                    x: { title: { display: true, text: 'Date' } },
+                    y: { title: { display: true, text: 'Score' } }
+                }
+            }
+        };
+
+        const configTeleop = {
+            type: 'line',
+            data: dataTeleop,
+            options: {
+                responsive: true,
+                scales: {
+                    x: { title: { display: true, text: 'Date' } },
+                    y: { title: { display: true, text: 'Score' } }
+                }
+            }
+        };
+
+        new Chart(document.getElementById('lineChartTotal'), configTotal);
+        new Chart(document.getElementById('lineChartAuto'), configAuto);
+        new Chart(document.getElementById('lineChartTeleop'), configTeleop);
     </script>
 </body>
 </html>

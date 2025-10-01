@@ -167,5 +167,5 @@ pub async fn queue_form(client: &State<Client>, headers: &State<HeaderMap>, pool
         },
     }
 
-    Template::render("error", context![error: "This is not an error: it worked!"])
+    Template::render("yippy", context! {})
 }
