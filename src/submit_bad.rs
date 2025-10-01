@@ -1,30 +1,48 @@
-use std::str::FromStr;
+use rocket::form::Form;
+//like submit.rs but for non logined people
+use sqlx::SqlitePool;
 
-use rocket::{form::Form, http::CookieJar};
-use sqlx::{query, Row, SqlitePool};
-use uuid::Uuid;
-
-use crate::ScoutingForm;
+use crate::submit::*;
 
 
+#[derive(Debug, FromForm)]
+pub struct ScoutingFormBad {
+    //Metadata
+    #[field(name = "username")] pub username: String,
+    #[field(name = "team")] pub team: i32,
+    #[field(name = "match")] pub matchid: i32,
+    #[field(name = "event-code")] pub event_code: String,
+    #[field(name = "level")] pub tournament_level: String,
+    #[field(name = "station")] pub station: String,
+    #[field(name = "id")] pub id: i32,
 
-//Auto scores
-pub const auto_l4_amount: i32 = 7;
-pub const auto_l3_amount: i32 = 6;
-pub const auto_l2_amount: i32 = 4;
-pub const auto_l1_amount: i32 = 3;
-pub const auto_algae_processor_amount: i32 = 2;
-pub const auto_algae_barge_amount: i32 = 4;
+    // Auto
+    #[field(name = "moved")] pub moved: String,
+    #[field(name = "auto-L1")] pub auto_l1: i32,
+    #[field(name = "auto-L2")] pub auto_l2: i32,
+    #[field(name = "auto-L3")] pub auto_l3: i32,
+    #[field(name = "auto-L4")] pub auto_l4: i32,
+    #[field(name = "auto-alpro")] pub auto_algae_processor: i32,
+    #[field(name = "auto-albar")] pub auto_algae_barge: i32,
+    #[field(name = "auto-alrem")] pub auto_algae_remove: i32,
 
-//Teleop scores
-pub const teleop_l4_amount: i32 = 5;
-pub const teleop_l3_amount: i32 = 4;
-pub const teleop_l2_amount: i32 = 3;
-pub const teleop_l1_amount: i32 = 2;
-pub const teleop_algae_processor_amount: i32 = 2;
-pub const teleop_algae_barge_amount: i32 = 2;
+    // Teleop
+    #[field(name = "teleop-L1")] pub teleop_l1: i32,
+    #[field(name = "teleop-L2")] pub teleop_l2: i32,
+    #[field(name = "teleop-L3")] pub teleop_l3: i32,
+    #[field(name = "teleop-L4")] pub teleop_l4: i32,
+    #[field(name = "teleop-alpro")] pub teleop_algae_processor: i32,
+    #[field(name = "teleop-albar")] pub teleop_algae_barge: i32,
+    #[field(name = "teleop-alrem")] pub teleop_algae_remove: i32,
 
-fn calculate_final_score(form: &ScoutingForm) -> i32 {
+    // Endgame
+    #[field(name = "died")] pub died: String,
+    #[field(name = "rating")] pub defense_rating: i32,
+    #[field(name = "climb")] pub climb_type: String,
+    #[field(name = "comment")] pub comment: String,
+}
+
+pub fn calculate_final_score(form: &ScoutingFormBad) -> i32 {
     let auto_coral = 
         (auto_l4_amount*form.auto_l4) + 
         (auto_l3_amount*form.auto_l3) + 
@@ -52,50 +70,8 @@ fn calculate_final_score(form: &ScoutingForm) -> i32 {
     auto_coral + teleop_coral + climb
 }
 
-#[post("/submit", data = "<form_data>")]
-pub async fn submit_page(pool: &rocket::State<SqlitePool>, jar: &CookieJar<'_>, form_data: Form<ScoutingForm>) -> &'static str {
-
-    let userid_string = match jar.get("uuid") {
-        Some(a) =>  a.value(),
-        None => {
-            "Not logined in"
-        },
-    };
-
-    let userid = match Uuid::from_str(userid_string) {
-        Ok(a) => a,
-        Err(_) => {
-            return "Not logined in";
-        },
-    };
-
-
-    let user_request = sqlx::query(r#"
-        SELECT can_write, username
-        FROM user_list
-        WHERE id = ?
-    "#)
-    .bind(userid)
-    .fetch_optional(pool.inner())
-    .await; //TODO: fix make new user to get perms right
-
-
-    let (can_write, username) = match user_request {
-        Ok(Some(a)) => {
-            (a.get::<bool, _>(0), a.get::<String, _>(1))
-        },
-        Ok(None) => {
-            return "Can't find user";
-        }
-        Err(_) => {
-            return "Database Error";
-        },
-    };
-
-    if !can_write {
-        return "You don't have writing perms!";
-    }
-
+#[post("/submit_bad", data = "<form_data>")]
+pub async fn submit_page(pool: &rocket::State<SqlitePool>, form_data: Form<ScoutingFormBad>) -> &'static str {
     let form = form_data.into_inner();
 
     let level = match form.tournament_level.as_str() {
@@ -115,7 +91,7 @@ pub async fn submit_page(pool: &rocket::State<SqlitePool>, jar: &CookieJar<'_>, 
     // Insert into scouting_entry
     let scouting_id = sqlx::query(
     "INSERT INTO scouting_entry (user, team, matchid, total_score, is_verified, event_code, tournament_level, station) VALUES (?, ?, ?, ?, ?, ?, ?, ?)")
-    .bind(username)
+    .bind(&form.username)
     .bind(form.team)
     .bind(form.matchid)
     .bind(calculate_final_score(&form))

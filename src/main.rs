@@ -22,6 +22,7 @@ mod graph;
 mod verify;
 mod queue;
 mod scout;
+mod submit_bad;
 
 //Make the auth header
 
@@ -179,6 +180,6 @@ async fn rocket() -> _ {
     .manage(client)
     .manage(auth_headers)
     .attach(Template::fairing())
-    .mount("/", routes![submit::submit_page, entries::view_entries, user::new_user, login::login, search::search, get_player_match::get_player_match, graph::graph, queue::queue_form, scout::scout, verify::verify])
+    .mount("/", routes![submit::submit_page, entries::view_entries, user::new_user, login::login, search::search, get_player_match::get_player_match, graph::graph, queue::queue_form, scout::scout, verify::verify, submit_bad::submit_page])
     .mount("/", FileServer::from(relative!("static")))
 }

@@ -31,6 +31,10 @@
     <form id="scouterForm" method="post">
         <!-- Step 1 -->
         <div class="step active">
+        <div id="bad-user">
+          <label for="username">Username</label>
+          <input type="text" name="username" id="username">
+        </div>
         <h2>Auto</h2>
                     <label for="moved">Moved</label>
                     <select name="moved" id="moved">
@@ -176,7 +180,22 @@
   <script>
     // Restore form data when the page loads
     document.addEventListener('DOMContentLoaded', restoreFormData);
+    const cookies = document.cookie.split(";").map(c => c.trim());
+    const loggedIn = cookies.some(c => c.startsWith("name="));
+    let path;
+    if (loggedIn) {
+      path = '/submit'
+    } else {
+      path = '/submit_bad'
+    }
 
+    //Check if the user is logined in
+    document.addEventListener('DOMContentLoaded', () => {
+
+      if (loggedIn) {
+        document.getElementById("bad-user").style.display = "none";
+      }
+    })
     // Get query parameter
     const params = new URLSearchParams(window.location.search);
     const station = params.get("bar");
@@ -287,7 +306,7 @@
       console.log(team);
       formObject["id"] = id;
 
-      fetch('/submit', {
+      fetch(path, {
         method: 'POST',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
         body: new URLSearchParams(formObject).toString(),

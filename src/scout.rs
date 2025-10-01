@@ -1,15 +1,13 @@
 use std::str::FromStr;
 
 use rocket::http::CookieJar;
+use rocket::response::Redirect;
 use rocket_dyn_templates::{context, Template};
 use serde::Deserialize;
 use serde::Serialize;
 use sqlx::{SqlitePool, Row};
 use uuid::Uuid;
 use std::collections::BTreeMap;
-
-use crate::queue::Match;
-use crate::queue::Team;
 
 use sqlx::FromRow;
 
@@ -89,46 +87,6 @@ pub async fn get_matches(pool: &SqlitePool) -> Result<Vec<MatchFull>, sqlx::Erro
 
 #[get("/scout_b")]
 pub async fn scout(pool: &rocket::State<SqlitePool>, jar: &CookieJar<'_>) -> Template {
-    let userid_string = match jar.get("uuid") {
-        Some(a) =>  a.value(),
-        None => {
-            return Template::render("error", context![error: "Not logined in"]);
-        },
-    };
-
-    let userid = match Uuid::from_str(userid_string) {
-        Ok(a) => a,
-        Err(_) => {
-            return Template::render("error", context![error: "Not logined in"]);
-        },
-    };
-
-
-    let user_request = sqlx::query(r#"
-        SELECT can_write, username
-        FROM user_list
-        WHERE id = ?
-    "#)
-    .bind(userid)
-    .fetch_optional(pool.inner())
-    .await; //TODO: fix make new user to get perms right
-
-
-    let (can_write, username) = match user_request {
-        Ok(Some(a)) => {
-            (a.get::<bool, _>(0), a.get::<String, _>(1))
-        },
-        Ok(None) => {
-            return Template::render("error", context![error: "Can't find user"]);
-        }
-        Err(_) => {
-            return Template::render("error", context![error: "Database Error"]);
-        },
-    };
-
-    if !can_write {
-        return Template::render("error", context![error: "You don't have writing perms!"]);
-    }
 
     let data = match get_matches(pool.inner()).await {
         Ok(a) => a,
