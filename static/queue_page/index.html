@@ -5,26 +5,73 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Queue</title>
     <link rel="stylesheet" href="/style.css">
+    <style>
+        /* Fullscreen loading overlay */
+        #loading-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.9);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 2rem;
+            color: #333;
+            z-index: 9999;
+            display: none; /* hidden by default */
+        }
+
+        .spinner {
+            border: 6px solid #f3f3f3;
+            border-top: 6px solid #3498db;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+    </style>
 </head>
 <body>
 
     <h2>Graph team</h2>
 
-    <form action="/queue" method="POST">
-        <label for="event">Event:<label><br>
+    <form id="queue-form" action="/queue" method="POST">
+        <label for="event">Event:</label><br>
         <input type="text" id="event" name="event" required><br><br>
         
-        <label for="tournament_level">Tournament Level:<label><br>
+        <label for="tournament_level">Tournament Level:</label><br>
         <select name="tournament_level" id="tournament_level">
             <option value="qual">Qualification</option>
             <option value="Playoff">Playoff</option>
         </select><br><br>
 
-        <label for="season">Season:<label><br>
+        <label for="season">Season:</label><br>
         <input type="number" id="season" name="season" required><br><br>
 
         <input type="submit" value="submit">
     </form>
 
+    <!-- Loading screen -->
+    <div id="loading-screen">
+        <div class="spinner"></div>
+        <p style="margin-left: 10px;">Loading...</p>
+    </div>
+
+    <script>
+        const form = document.getElementById('queue-form');
+        const loadingScreen = document.getElementById('loading-screen');
+
+        form.addEventListener('submit', () => {
+            // Show loading screen as soon as user clicks submit
+            loadingScreen.style.display = 'flex';
+        });
+    </script>
 </body>
 </html>
