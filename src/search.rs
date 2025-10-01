@@ -6,48 +6,33 @@ use crate::{check_if_read, ScoutingEntryBasic};
 
 #[derive(Debug, FromForm)]
 pub struct SearchForm {
-    #[field(name = "startdate")] pub startdate: String,
-    #[field(name = "stopdate")] pub stopdate: String,
+    #[field(name = "event")] pub event: String,
     #[field(name = "team")] pub team: i32,
 }
 
 
 #[post("/search", data = "<form_data>")]
-pub async fn search(pool: &State<SqlitePool>, jar: &CookieJar<'_>,
+pub async fn search(pool: &State<SqlitePool>,
     form_data: Form<SearchForm>  // Form data from the request)
 ) -> Template {
-   
-    //Get cookie
-    let userid_string = match jar.get("uuid") {
-        Some(a) =>  a.value(),
-        None => {
-            return Template::render("error", context! { error: "Not logined" });
-        },
-    };
 
-    match check_if_read(userid_string, pool).await {
-        Some(a) => {
-            return a;
-        },
-        None => {},
-    };
 
     let list = sqlx::query_as::<_, ScoutingEntryBasic>(r#"
         SELECT id, user, team, created_at
         FROM scouting_entry
         WHERE team = ?
-        AND DATE(created_at) BETWEEN DATE(?) AND DATE(?)
+        AND event_code = ?
         ORDER BY created_at DESC;
     "#)
     .bind(&form_data.team)
-    .bind(&form_data.startdate)
-    .bind(&form_data.stopdate)
+    .bind(&form_data.event)
     .fetch_all(pool.inner())
     .await;
 
     match list {
         Ok(a) => Template::render("search", context! {entries: a}),
-        Err(_) => {
+        Err(a) => {
+            println!("{a}");
             return Template::render("error", context! { error: "Unkown error" });
         },
     }

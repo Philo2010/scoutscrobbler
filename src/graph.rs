@@ -19,22 +19,7 @@ pub struct DataNodeTeam {
 }
 
 #[post("/graph_team", data = "<form_data>")]
-pub async fn graph(pool: &rocket::State<SqlitePool>, jar: &CookieJar<'_>, form_data: Form<TeamSearch>) -> Template {
-    
-    //Check if user has perms
-    let userid_string = match jar.get("uuid") {
-        Some(a) =>  a.value(),
-        None => {
-            return Template::render("error", "Not login!");
-        },
-    };
-
-    match check_if_read(userid_string, pool).await {
-        Some(a) => {
-            return Template::render("error", "Dont have perms");
-        },
-        None => {},
-    };
+pub async fn graph(pool: &rocket::State<SqlitePool>,  form_data: Form<TeamSearch>) -> Template {
 
     //We should precaluate this value the read it, but im not changeing structs yet again!
     let dataquery = sqlx::query_as::<_, DataNodeTeam>(r#"
