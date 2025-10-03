@@ -1,84 +1,106 @@
-.step { display: none; }
-.step.active { display: block; }
-.buttons { margin-top: 10px; }
-    .slider-container {
-    width: 300px;
-    margin: auto;
+/* ==== Global Fixes ==== */
+html, body {
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden; /* removes horizontal scrollbar */
+  background-color: #2a2727;
+  color: white;
+  font-size: 30px;
+  font-family: monospace;
+  text-align: center;
+}
+
+/* Make all inputs behave nicely */
+input, select, textarea {
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+/* ==== Step Handling ==== */
+.step {
+  display: none;
+}
+.step.active {
+  display: block;
+}
+.buttons {
+  margin-top: 10px;
+}
+
+/* ==== Slider ==== */
+.slider-container {
+  width: 300px;
+  max-width: 100%;
+  margin: auto;
 }
 
 input[type="range"] {
-    width: 100%;
-    appearance: none;
-    height: 10px;
-    background: linear-gradient(to right, #ddd 0%, #ddd 100%);
-    border-radius: 5px;
-    outline: none;
+  width: 100%;
+  appearance: none;
+  height: 10px;
+  background: linear-gradient(to right, #ddd 0%, #ddd 100%);
+  border-radius: 5px;
+  outline: none;
 }
 
 /* Slider thumb */
 input[type="range"]::-webkit-slider-thumb {
-    appearance: none;
-    width: 20px;
-    height: 20px;
-    border-radius: 50%;
-    background: #007bff;
-    cursor: pointer;
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #007bff;
+  cursor: pointer;
 }
 input[type="range"]::-moz-range-thumb {
-    width: 20px;
-    height: 20px;
-    border-radius: 50%;
-    background: #007bff;
-    cursor: pointer;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #007bff;
+  cursor: pointer;
 }
 
 /* Ticks */
 .ticks {
-    display: flex;
-    justify-content: space-between;
-    font-size: 14px;
-    padding-top: 5px;
+  display: flex;
+  justify-content: space-between;
+  font-size: 14px;
+  padding-top: 5px;
 }
 
-body {
-    background-color: #2a2727;
-    color: white;
-    font-size: 30px;
-    font-family: monospace;
-    margin: auto;
-    text-align: center;
-    max-width: fit-content;
-    margin-left: auto;
-    margin-right: auto;
+/* ==== Number Input with Custom Buttons ==== */
+.number-input {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  flex-wrap: wrap; /* Prevents overflow on smaller screens */
 }
-  .number-input {
-    display: inline-flex;
-    align-items: center;
-    gap: 5px;
-  }
 
-  .number-input button {
-    width: 30px;
-    height: 30px;
-    font-size: 20px;
-    font-weight: bold;
-    cursor: pointer;
-  }
+.number-input button {
+  flex: 0 0 40px;
+  height: 40px;
+  font-weight: bold;
+  border-radius: 6px;
+  cursor: pointer;
+}
 
-  input[type=number] {
-    width: 60px;
-    font-size: 16px;
-    padding: 5px;
-    text-align: center;
-  }
-  /* Hide number input spinners for Chrome, Safari, Edge */
+input[type=number] {
+  width: 70px;
+  font-size: 20px;
+  padding: 5px;
+  text-align: center;
+}
+
+/* Hide spinners - Chrome, Safari, Edge */
 input[type=number]::-webkit-outer-spin-button,
 input[type=number]::-webkit-inner-spin-button {
   -webkit-appearance: none;
   margin: 0;
 }
 
-/* Hide number input spinners for Firefox */
+/* Hide spinners - Firefox */
 input[type=number] {
   -moz-appearance: textfield;
+  appearance: textfield; /* for newer Firefox */
 }
