@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Team Scores Line Graph</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <h2>Team Score Over Time</h2>
+    <canvas id="lineChartTotal" width="800" height="400"></canvas>
+
+    <h2>Auto Score Over Time</h2>
+    <canvas id="lineChartAuto" width="800" height="400"></canvas>
+
+    <h2>Teleop Score Over Time</h2>
+    <canvas id="lineChartTeleop" width="800" height="400"></canvas>
+
+    <script>
+        const labels = [
+            {% for item in team_data %}
+                "{{ item.created_at }}"{% if not loop.last %},{% endif %}
+            {% endfor %}
+        ];
+
+        // total score
+        const dataTotal = {
+            labels: labels,
+            datasets: [{
+                label: 'Total Score',
+                data: [
+                    {% for item in team_data %}
+                        {{ item.total_score }}{% if not loop.last %},{% endif %}
+                    {% endfor %}
+                ],
+                fill: false,
+                borderColor: 'rgb(75, 192, 192)',
+                tension: 0.1
+            }]
+        };
+
+        // auto score
+        const dataAuto = {
+            labels: labels,
+            datasets: [{
+                label: 'Auto Score',
+                data: [
+                    {% for item in team_data %}
+                        {{ item.auto_total }}{% if not loop.last %},{% endif %}
+                    {% endfor %}
+                ],
+                fill: false,
+                borderColor: 'rgb(255, 99, 132)',
+                tension: 0.1
+            }]
+        };
+
+        // teleop score
+        const dataTeleop = {
+            labels: labels,
+            datasets: [{
+                label: 'Teleop Score',
+                data: [
+                    {% for item in team_data %}
+                        {{ item.teleop_total }}{% if not loop.last %},{% endif %}
+                    {% endfor %}
+                ],
+                fill: false,
+                borderColor: 'rgb(54, 162, 235)',
+                tension: 0.1
+            }]
+        };
+
+        const configTotal = {
+            type: 'line',
+            data: dataTotal,
+            options: {
+                responsive: true,
+                scales: {
+                    x: { title: { display: true, text: 'Date' } },
+                    y: { title: { display: true, text: 'Score' } }
+                }
+            }
+        };
+
+        const configAuto = {
+            type: 'line',
+            data: dataAuto,
+            options: {
+                responsive: true,
+                scales: {
+                    x: { title: { display: true, text: 'Date' } },
+                    y: { title: { display: true, text: 'Score' } }
+                }
+            }
+        };
+
+        const configTeleop = {
+            type: 'line',
+            data: dataTeleop,
+            options: {
+                responsive: true,
+                scales: {
+                    x: { title: { display: true, text: 'Date' } },
+                    y: { title: { display: true, text: 'Score' } }
+                }
+            }
+        };
+
+        new Chart(document.getElementById('lineChartTotal'), configTotal);
+        new Chart(document.getElementById('lineChartAuto'), configAuto);
+        new Chart(document.getElementById('lineChartTeleop'), configTeleop);
+    </script>
+</body>
+</html>

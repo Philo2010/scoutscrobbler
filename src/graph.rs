@@ -1,4 +1,4 @@
-use rocket::{data, form::Form, http::CookieJar};
+use rocket::{data, form::{self, Form}, http::CookieJar};
 use rocket_dyn_templates::{context, Template};
 use sqlx::{FromRow, SqlitePool};
 
@@ -7,6 +7,7 @@ use crate::check_if_read;
 #[derive(Debug, FromForm)]
 struct TeamSearch {
     #[field(name = "team")] pub team: i32,
+    #[field(name = "team2")] pub team2: Option<i32>,
 }
 
 #[derive(FromRow, serde::Serialize)]
@@ -18,11 +19,8 @@ pub struct DataNodeTeam {
     teleop_total: i32,
 }
 
-#[post("/graph_team", data = "<form_data>")]
-pub async fn graph(pool: &rocket::State<SqlitePool>,  form_data: Form<TeamSearch>) -> Template {
-
-    //We should precaluate this value the read it, but im not changeing structs yet again!
-    let dataquery = sqlx::query_as::<_, DataNodeTeam>(r#"
+async fn get_team_data(team: &i32, pool: &SqlitePool) -> Result<Vec<DataNodeTeam>, sqlx::Error> {
+    sqlx::query_as::<_, DataNodeTeam>(r#"
         SELECT 
         se.total_score,
         se.created_at,
@@ -50,10 +48,16 @@ pub async fn graph(pool: &rocket::State<SqlitePool>,  form_data: Form<TeamSearch
         WHERE se.team = ?
         ORDER BY se.created_at ASC;
     "#)
-    .bind(&form_data.team)
-    .fetch_all(pool.inner())
-    .await;
+    .bind(team)
+    .fetch_all(pool)
+    .await
+}
 
+#[post("/graph_team", data = "<form_data>")]
+pub async fn graph(pool: &rocket::State<SqlitePool>,  form_data: Form<TeamSearch>) -> Template {
+
+    //We should precaluate this value the read it, but im not changeing structs yet again!
+    let dataquery = get_team_data(&form_data.team, pool.inner()).await;
 
     let data = match dataquery {
         Ok(a) => {
@@ -64,10 +68,21 @@ pub async fn graph(pool: &rocket::State<SqlitePool>,  form_data: Form<TeamSearch
             return Template::render("error", context! {error: "Database error"});
         },
     };
-    println!("{}", data.len());
 
-    
-
-
-    Template::render("graph_render",context![team_data: data])
+    if let Some(team2) = &form_data.team2 {
+        let dataquery_2 = get_team_data(team2, pool.inner()).await;
+        let data2 = match dataquery_2 {
+            Ok(a) => {
+                a
+            },
+            Err(a) => {
+                println!("{a}");
+                return Template::render("error", context! {error: "Database error"});
+            },
+        };
+        
+        Template::render("graph_render",context![team_data: data, team_data2: data2])   
+    } else {
+        return Template::render("graph_single",context![team_data: data]);
+    }
 }
