@@ -144,21 +144,23 @@
         <!-- Step 3 -->
         <div class="step">
         <h3>Defensive ability</h3>
-                    <label for="died">Died</label>
-                    <select name="died" id="died">
-                        <option value="yes">Yes</option>
-                        <option value="no">No</option>
-                    </select>
-                    <div class="slider-container">
-                    <input type="range" name="rating" id="rating" min="1" max="5" step="1" value="3">
-                    <div class="ticks">
-                    <span>1</span>
-                    <span>2</span>
-                    <span>3</span>
-                    <span>4</span>
-                    <span>5</span>
-                    </div>
-                </div>
+        <div class="slider-container">
+          <input type="range" name="rating" id="rating" min="0" max="5" step="1" value="3">
+          <div class="ticks">
+          <span>0</span>
+          <span>1</span>
+          <span>2</span>
+          <span>3</span>
+          <span>4</span>
+          <span>5</span>
+          </div>
+        </div>
+        <br>
+        <label for="died">Died</label>
+        <select name="died" id="died">
+            <option value="no">No</option>
+            <option value="yes">Yes</option>
+        </select>
                     <br>
                     <label for="climb">Climb</label>
                     <select name="climb" id="climb">

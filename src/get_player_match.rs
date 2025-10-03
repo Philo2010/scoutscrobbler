@@ -5,20 +5,7 @@ use sqlx::SqlitePool;
 use crate::{check_if_read, ScoutingEntry, ScoutingEntryBasic};
 
 #[get("/get_player_match/<id>")]
-pub async fn get_player_match(pool: &rocket::State<SqlitePool>, jar: &CookieJar<'_>, id: i32) -> Template {
-    let userid_string = match jar.get("uuid") {
-        Some(a) =>  a.value(),
-        None => {
-            return Template::render("error", context! { error: "Not logined" });
-        },
-    };
-
-    match check_if_read(userid_string, pool).await {
-        Some(a) => {
-            return a;
-        },
-        None => {},
-    };
+pub async fn get_player_match(pool: &rocket::State<SqlitePool>, id: i32) -> Template {
 
     let entry = match sqlx::query_as::<_, ScoutingEntry>(r#"
         SELECT 

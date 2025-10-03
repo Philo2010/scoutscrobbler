@@ -25,7 +25,6 @@ struct FlatMatchRow {
 
 #[derive(Debug, Deserialize, Serialize)]
 pub struct MatchFull {
-    // We omit `matchNumber` since we don't care about it
     pub id: i64,
     pub description: String,
     pub event_code: String,

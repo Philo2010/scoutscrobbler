@@ -28,23 +28,21 @@ pub async fn graph(pool: &rocket::State<SqlitePool>,  form_data: Form<TeamSearch
         se.created_at,
         se.matchid,
 
-        -- Auto total
-        COALESCE(a.L1, 0) +
-        COALESCE(a.L2, 0) +
-        COALESCE(a.L3, 0) +
-        COALESCE(a.L4, 0) +
-        COALESCE(a.algae_processor, 0) +
-        COALESCE(a.algae_barge, 0) +
-        COALESCE(a.algae_remove, 0) AS auto_total,
+        -- Auto total with weights
+        COALESCE(a.L4, 0) * 7 +
+        COALESCE(a.L3, 0) * 6 +
+        COALESCE(a.L2, 0) * 4 +
+        COALESCE(a.L1, 0) * 3 +
+        COALESCE(a.algae_processor, 0) * 2 +
+        COALESCE(a.algae_barge, 0) * 4 AS auto_total,
 
-        -- Teleop total
-        COALESCE(t.L1, 0) +
-        COALESCE(t.L2, 0) +
-        COALESCE(t.L3, 0) +
-        COALESCE(t.L4, 0) +
-        COALESCE(t.algae_processor, 0) +
-        COALESCE(t.algae_barge, 0) +
-        COALESCE(t.algae_remove, 0) AS teleop_total
+        -- Teleop total with weights
+        COALESCE(t.L4, 0) * 5 +
+        COALESCE(t.L3, 0) * 4 +
+        COALESCE(t.L2, 0) * 3 +
+        COALESCE(t.L1, 0) * 2 +
+        COALESCE(t.algae_processor, 0) * 2 +
+        COALESCE(t.algae_barge, 0) * 2 AS teleop_total
 
         FROM scouting_entry se
         LEFT JOIN auto_data a ON a.scouting_id = se.id
@@ -55,7 +53,6 @@ pub async fn graph(pool: &rocket::State<SqlitePool>,  form_data: Form<TeamSearch
     .bind(&form_data.team)
     .fetch_all(pool.inner())
     .await;
-
 
 
     let data = match dataquery {
