@@ -28,7 +28,6 @@ mod submit_bad;
 
 // username:password = "***REMOVED***"
 // Base64-encoded = "REDACTED"
-pub const BASIC_AUTH_HEADER: &str = "***REMOVED***";
 
 
 //Generatic types used all across code
@@ -166,8 +165,8 @@ async fn rocket() -> _ {
         .build()
         .expect("Could not build http client! FATAL!!!");
     let mut auth_headers =  reqwest::header::HeaderMap::new();
-    auth_headers.insert("Authorization", BASIC_AUTH_HEADER.parse().expect("Error with http header"));
-    auth_headers.insert("If-Modified-Since", "".parse().expect("Error with http header"));
+    auth_headers.insert("accept", "application/json".parse().unwrap());
+    auth_headers.insert("X-TBA-Auth-Key", "***REMOVED***".parse().unwrap());
 
     let db_pool = SqlitePool::connect("sqlite:main.sqlite").await.expect("Failed to connect to DB");
 

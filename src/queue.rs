@@ -3,6 +3,7 @@ use std::str::FromStr;
 
 use reqwest::header::HeaderMap;
 use reqwest::{Client, Method};
+use rocket::{data, form};
 use rocket::{form::Form, http::CookieJar, State};
 use rocket_dyn_templates::{context, Template};
 use serde::{Deserialize, Serialize};
@@ -13,9 +14,25 @@ use sqlx::types::Uuid;
 
 #[derive(Debug, FromForm)]
 struct QueueForm {
-    #[field(name = "tournament_level")] tournament_level: String, //Must be ether "qual", or "Playoff" (Bootleg enum)
     #[field(name = "event")] event: String,
-    #[field(name = "season")] season: i32,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct TbaMatch {
+    pub comp_level: String,
+    pub match_number: i32,
+    pub alliances: Alliances,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct Alliances {
+    pub red: Alliance,
+    pub blue: Alliance,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct Alliance {
+    pub team_keys: Vec<String>,
 }
 
 //Serde types for seralziatoin
@@ -114,8 +131,56 @@ pub async fn insert_schedule(
     Ok(())
 }
 
+pub async fn pull_from_blue(client: &Client, headers: &HeaderMap, pool: &SqlitePool, event_code: &String) -> Result<Vec<TbaMatch>, reqwest::Error> {
+    //https://www.thebluealliance.com/api/v3/event/2025tacy/matches/simple
 
+    //Make a request to get the major data
+    let request = client.get(format!("https://www.thebluealliance.com/api/v3/event/{}/matches/simple", event_code))
+        .headers(headers.clone()).send().await?;
 
+    let body: Vec<TbaMatch> = request.json().await?;
+    
+
+    Ok(body)
+}
+
+impl From<&TbaMatch> for Match {
+    fn from(tba: &TbaMatch) -> Self {
+        let mut teams = Vec::new();
+
+        // Red teams
+        for (i, team_key) in tba.alliances.red.team_keys.iter().enumerate() {
+            if let Some(num) = team_key.strip_prefix("frc").and_then(|n| n.parse::<u32>().ok()) {
+                teams.push(Team {
+                    teamNumber: num,
+                    station: format!("Red{}", i + 1),
+                });
+            }
+        }
+
+        // Blue teams
+        for (i, team_key) in tba.alliances.blue.team_keys.iter().enumerate() {
+            if let Some(num) = team_key.strip_prefix("frc").and_then(|n| n.parse::<u32>().ok()) {
+                teams.push(Team {
+                    teamNumber: num,
+                    station: format!("Blue{}", i + 1),
+                });
+            }
+        }
+        let formated_level = match tba.comp_level.as_str() {
+                "qm" => "Qualification".to_string(),
+                "sf" => "Playoff".to_string(),
+                _ => "Playoff".to_string() //Fallback
+        };
+
+        Self {
+            description: format!("{} {}",formated_level, tba.match_number),
+            matchNumber: tba.match_number,
+            tournamentLevel: formated_level,
+            teams,
+        }
+    }
+}
 
 #[post("/queue", data = "<form_data>")]
 pub async fn queue_form(client: &State<Client>, headers: &State<HeaderMap>, pool: &rocket::State<SqlitePool>, jar: &CookieJar<'_>, form_data: Form<QueueForm>) -> Template {
@@ -137,28 +202,17 @@ pub async fn queue_form(client: &State<Client>, headers: &State<HeaderMap>, pool
     //We now know the user is a admin
     //Pull data to make a requeast
 
-    let url = format(format_args!("https://frc-api.firstinspires.org/v3.0/{}/schedule/{}?tournamentLevel={}", 
-        &form_data.season,
-        &form_data.event,
-        &form_data.tournament_level));
-
-    let request = client.inner()
-    .request(Method::GET, url)
-    .headers(headers.inner().clone());
-    //Send that shit!
-    let body = match request.send().await {
+    let request = match pull_from_blue(client, headers, pool, &form_data.event).await {
         Ok(a) => a,
         Err(_) => {
-            return Template::render("error", context![error: "Form is invaild or api does not have this value yet"]);
-        },
-    };
-    let data: ScheduleData = match body.json().await {
-        Ok(a) => a,
-        Err(_) => {
-            return Template::render("error", context![error: "Responce was invaild"]);
+            return Template::render("error", context![error: "Database error!"]);
         },
     };
 
+    let data: ScheduleData = ScheduleData {
+        Schedule: request.iter().map(Match::from).collect::<Vec<_>>(),
+    };
+    
     match insert_schedule(pool.inner(), &form_data.event, data).await {
         Ok(_) => {},
         Err(a) => {
