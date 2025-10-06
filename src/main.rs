@@ -36,6 +36,9 @@ const username_db: &'static str = "postgres";
 const password_db: &'static str = "newpassword";
 const name_db: &'static str = "scoutscrobbler";
 
+//API for blue alleince
+const blue_api: &'static str = "[INSERT API KEY HERE]";
+
 //Generatic types used all across code
 
 #[derive(Debug, FromForm)]
@@ -171,7 +174,7 @@ async fn rocket() -> _ {
         .expect("Could not build http client! FATAL!!!");
     let mut auth_headers =  reqwest::header::HeaderMap::new();
     auth_headers.insert("accept", "application/json".parse().unwrap());
-    auth_headers.insert("X-TBA-Auth-Key", "***REMOVED***".parse().unwrap());
+    auth_headers.insert("X-TBA-Auth-Key", blue_api.to_string().parse().unwrap());
 
     let db_url = format!("postgres://{username_db}:{password_db}@localhost:5432/{name_db}");
     
