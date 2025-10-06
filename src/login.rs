@@ -8,6 +8,8 @@ pub struct UserRequestLogin {
     #[field(name = "username")] pub username: String,
 }
 
+const kill_string: &'static str = ";expires=Thu, 01 Jan 1970 00:00:00 GMT";
+
 
 
 #[post("/login", data = "<form_data>")]
@@ -40,8 +42,8 @@ pub async fn login(pool: &State<PgPool>, form_data: Form<UserRequestLogin>) -> T
             };
             (user_id, can_read, can_write, is_admin)
         },
-        Ok(None) => {return Template::render("login", context! [state: "No user found", uuid: "", can_read: "", can_write: "", username: "", is_admin: ""]);}, // No user found
-        Err(_) => {return Template::render("login", context! [state: "Database Error", uuid: "", can_read: "", can_write: "", username: "", is_admin: ""]);}, // Database error occurred
+        Ok(None) => {return Template::render("login", context! [state: "No user found", uuid: kill_string, can_read: kill_string, can_write: kill_string, username: kill_string, is_admin: kill_string]);}, // No user found
+        Err(_) => {return Template::render("login", context! [state: "Database Error", uuid: kill_string, can_read: kill_string, can_write: kill_string, username: kill_string, is_admin: kill_string]);}, // Database error occurred
     };
     
 

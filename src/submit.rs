@@ -126,11 +126,11 @@ pub async fn submit_page(pool: &rocket::State<PgPool>, jar: &CookieJar<'_>, form
     .bind(form.team)
     .bind(form.matchid)
     .bind(calculate_final_score(&form))
-    .bind("Unverified") // fixed spelling
+    .bind("Unverified")
     .bind(&form.event_code)
     .bind(&level)
     .bind(&station)
-    .fetch_one(pool.inner()) // ✅ instead of execute()
+    .fetch_one(pool.inner())
     .await
     .expect("Insert failed");
 

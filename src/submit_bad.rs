@@ -93,7 +93,7 @@ pub async fn submit_page(pool: &rocket::State<PgPool>, form_data: Form<ScoutingF
     let row = sqlx::query(
         r#"
         INSERT INTO scouting_entry 
-            (user, team, matchid, total_score, is_verified, event_code, tournament_level, station)
+            ("user", team, matchid, total_score, is_verified, event_code, tournament_level, station)
         VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
         RETURNING id
         "#)
@@ -109,9 +109,10 @@ pub async fn submit_page(pool: &rocket::State<PgPool>, form_data: Form<ScoutingF
     .await
     .expect("Insert failed");
 
-    let scouting_id: i64 = match row.try_get("id") {
+    let scouting_id: i32 = match row.try_get("id") {
         Ok(a) => a,
         Err(a) => {
+            println!("{a}");
             return "Failed";
         }
     };
