@@ -1,6 +1,6 @@
 use rocket::{data, form::{self, Form}, http::CookieJar};
 use rocket_dyn_templates::{context, Template};
-use sqlx::{FromRow, SqlitePool};
+use sqlx::{types::chrono, Error, FromRow, PgPool};
 
 use crate::check_if_read;
 
@@ -14,38 +14,38 @@ struct TeamSearch {
 pub struct DataNodeTeam {
     total_score: i32,
     matchid: i32,
-    created_at: String,
+    created_at: chrono::NaiveDateTime,
     auto_total: i32,
     teleop_total: i32,
 }
 
-async fn get_team_data(team: &i32, pool: &SqlitePool) -> Result<Vec<DataNodeTeam>, sqlx::Error> {
+pub async fn get_team_data(team: &i32, pool: &PgPool) -> Result<Vec<DataNodeTeam>, Error> {
     sqlx::query_as::<_, DataNodeTeam>(r#"
         SELECT 
-        se.total_score,
-        se.created_at,
-        se.matchid,
+            se.total_score,
+            se.created_at,
+            se.matchid,
 
-        -- Auto total with weights
-        COALESCE(a.L4, 0) * 7 +
-        COALESCE(a.L3, 0) * 6 +
-        COALESCE(a.L2, 0) * 4 +
-        COALESCE(a.L1, 0) * 3 +
-        COALESCE(a.algae_processor, 0) * 2 +
-        COALESCE(a.algae_barge, 0) * 4 AS auto_total,
+            -- Auto total with weights
+            COALESCE(a.L4, 0) * 7 +
+            COALESCE(a.L3, 0) * 6 +
+            COALESCE(a.L2, 0) * 4 +
+            COALESCE(a.L1, 0) * 3 +
+            COALESCE(a.algae_processor, 0) * 2 +
+            COALESCE(a.algae_barge, 0) * 4 AS auto_total,
 
-        -- Teleop total with weights
-        COALESCE(t.L4, 0) * 5 +
-        COALESCE(t.L3, 0) * 4 +
-        COALESCE(t.L2, 0) * 3 +
-        COALESCE(t.L1, 0) * 2 +
-        COALESCE(t.algae_processor, 0) * 2 +
-        COALESCE(t.algae_barge, 0) * 2 AS teleop_total
+            -- Teleop total with weights
+            COALESCE(t.L4, 0) * 5 +
+            COALESCE(t.L3, 0) * 4 +
+            COALESCE(t.L2, 0) * 3 +
+            COALESCE(t.L1, 0) * 2 +
+            COALESCE(t.algae_processor, 0) * 2 +
+            COALESCE(t.algae_barge, 0) * 2 AS teleop_total
 
         FROM scouting_entry se
         LEFT JOIN auto_data a ON a.scouting_id = se.id
         LEFT JOIN teleop_data t ON t.scouting_id = se.id
-        WHERE se.team = ?
+        WHERE se.team = $1
         ORDER BY se.created_at ASC;
     "#)
     .bind(team)
@@ -53,8 +53,9 @@ async fn get_team_data(team: &i32, pool: &SqlitePool) -> Result<Vec<DataNodeTeam
     .await
 }
 
+
 #[post("/graph_team", data = "<form_data>")]
-pub async fn graph(pool: &rocket::State<SqlitePool>,  form_data: Form<TeamSearch>) -> Template {
+pub async fn graph(pool: &rocket::State<PgPool>,  form_data: Form<TeamSearch>) -> Template {
 
     //We should precaluate this value the read it, but im not changeing structs yet again!
     let dataquery = get_team_data(&form_data.team, pool.inner()).await;

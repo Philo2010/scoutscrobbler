@@ -1,5 +1,5 @@
 use rocket::{form::Form, State};
-use sqlx::{Error, SqlitePool};
+use sqlx::{Error, PgPool};
 use uuid::Uuid;
 
 const bcrypt_cost: u32 = 12;
@@ -17,7 +17,7 @@ pub struct UserRequestCreate {
 
 #[post("/new_user", data = "<form_data>")]
 pub async fn new_user(
-    pool: &State<SqlitePool>,        // Pool extracted from Rocket's State
+    pool: &State<PgPool>,        // Pool extracted from Rocket's State
     form_data: Form<UserRequestCreate>  // Form data from the request
 ) -> &'static str {
     // Validate admin password
@@ -26,35 +26,34 @@ pub async fn new_user(
     }
 
     // Parse can_read
-    let can_read: i32 = match form_data.can_read.as_str() {
-        "true" => 1,
-        "false" => 0,
+    let can_read: bool = match form_data.can_read.as_str() {
+        "true" => true,
+        "false" => false,
         _ => return "Invalid form: can_read must be 'true' or 'false'.",
     };
 
     // Parse can_write
-    let can_write: i32 = match form_data.can_write.as_str() {
-        "true" => 1,
-        "false" => 0,
+    let can_write: bool = match form_data.can_write.as_str() {
+        "true" => true,
+        "false" => false,
         _ => return "Invalid form: can_write must be 'true' or 'false'.",
     };
 
     //Parse is_admin
-    let is_admin: i32 = match form_data.is_admin.as_str() {
-        "true" => 1,
-        "false" => 0,
+    let is_admin: bool = match form_data.is_admin.as_str() {
+        "true" => true,
+        "false" => false,
         _ => return "Invalid form: is admin must be 'true' or 'false'.",
     };
 
     let uuid = Uuid::new_v4();
-    let id: Vec<u8> = uuid.as_bytes().to_vec();
 
     // Execute the SQL query
     let result = sqlx::query("
         INSERT INTO user_list (id, username, can_write, can_read, is_admin)
-        VALUES (?, ?, ?, ?, ?)
+        VALUES ($1, $2, $3, $4, $5)
     ")
-    .bind(id)  // UUID as bytes for the BLOB column
+    .bind(uuid)  // UUID as bytes for the BLOB column
     .bind(&form_data.username)       // Bind username
     .bind(can_write)                  // Bind can_read as i32 (1 for true, 0 for false)
     .bind(can_read)                 // Bind can_write as i32 (1 for true, 0 for false)

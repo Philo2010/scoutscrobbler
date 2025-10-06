@@ -5,7 +5,8 @@ use rocket::response::Redirect;
 use rocket_dyn_templates::{context, Template};
 use serde::Deserialize;
 use serde::Serialize;
-use sqlx::{SqlitePool, Row};
+use sqlx::PgPool;
+use sqlx::{Row};
 use uuid::Uuid;
 use std::collections::BTreeMap;
 
@@ -13,7 +14,7 @@ use sqlx::FromRow;
 
 #[derive(Debug, FromRow)]
 struct FlatMatchRow {
-    match_id: i64,
+    match_id: i32,
     description: String,
     match_number: i32,
     event_code: String,
@@ -25,7 +26,7 @@ struct FlatMatchRow {
 
 #[derive(Debug, Deserialize, Serialize)]
 pub struct MatchFull {
-    pub id: i64,
+    pub id: i32,
     pub description: String,
     pub event_code: String,
     pub matchNumber: i32,
@@ -41,7 +42,7 @@ pub struct TeamFull {
 }
 
 
-pub async fn get_matches(pool: &SqlitePool) -> Result<Vec<MatchFull>, sqlx::Error> {
+pub async fn get_matches(pool: &PgPool) -> Result<Vec<MatchFull>, sqlx::Error> {
     let rows: Vec<FlatMatchRow> = sqlx::query_as::<_, FlatMatchRow>(
         r#"
         SELECT 
@@ -61,7 +62,7 @@ pub async fn get_matches(pool: &SqlitePool) -> Result<Vec<MatchFull>, sqlx::Erro
     .fetch_all(pool)
     .await?;
 
-    let mut grouped = BTreeMap::<i64, MatchFull>::new();
+    let mut grouped = BTreeMap::<i32, MatchFull>::new();
 
     for row in rows {
         let entry = grouped.entry(row.match_id).or_insert_with(|| MatchFull {
@@ -85,7 +86,7 @@ pub async fn get_matches(pool: &SqlitePool) -> Result<Vec<MatchFull>, sqlx::Erro
 
 
 #[get("/scout_b")]
-pub async fn scout(pool: &rocket::State<SqlitePool>, jar: &CookieJar<'_>) -> Template {
+pub async fn scout(pool: &rocket::State<PgPool>) -> Template {
 
     let data = match get_matches(pool.inner()).await {
         Ok(a) => a,

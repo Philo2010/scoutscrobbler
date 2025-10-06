@@ -1,8 +1,6 @@
-PRAGMA foreign_keys = ON;
-
 CREATE TABLE scouting_entry (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    user TEXT,
+    id SERIAL PRIMARY KEY,
+    "user" TEXT,
     team INTEGER,
     matchid INTEGER,
     total_score INTEGER,
@@ -10,57 +8,53 @@ CREATE TABLE scouting_entry (
     tournament_level VARCHAR(20),
     station VARCHAR(6),
     is_verified VARCHAR(20),
-    created_at TEXT DEFAULT CURRENT_TIMESTAMP
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE auto_data (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    scouting_id INTEGER,
-    moved BOOL,
+    id SERIAL PRIMARY KEY,
+    scouting_id INTEGER REFERENCES scouting_entry(id) ON DELETE CASCADE,
+    moved BOOLEAN,
     L1 INTEGER,
     L2 INTEGER,
     L3 INTEGER,
     L4 INTEGER,
     algae_processor INTEGER,
     algae_barge INTEGER,
-    algae_remove INTEGER,
-    FOREIGN KEY(scouting_id) REFERENCES scouting_entry(id)
+    algae_remove INTEGER
 );
 
 CREATE TABLE teleop_data (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    scouting_id INTEGER,
+    id SERIAL PRIMARY KEY,
+    scouting_id INTEGER REFERENCES scouting_entry(id) ON DELETE CASCADE,
     L1 INTEGER,
     L2 INTEGER,
     L3 INTEGER,
     L4 INTEGER,
     algae_processor INTEGER,
     algae_barge INTEGER,
-    algae_remove INTEGER,
-    FOREIGN KEY(scouting_id) REFERENCES scouting_entry(id)
+    algae_remove INTEGER
 );
 
 CREATE TABLE endgame_data (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    died BOOL,
-    scouting_id INTEGER,
+    id SERIAL PRIMARY KEY,
+    died BOOLEAN,
+    scouting_id INTEGER REFERENCES scouting_entry(id) ON DELETE CASCADE,
     defense_rating INTEGER,
     climb_type TEXT,
-    comment TEXT,
-    FOREIGN KEY(scouting_id) REFERENCES scouting_entry(id)
+    comment TEXT
 );
 
-
 CREATE TABLE user_list (
-    id BLOB PRIMARY KEY,
+    id UUID PRIMARY KEY,
     username TEXT NOT NULL UNIQUE,
-    can_write BOOL NOT NULL,
-    can_read BOOL NOT NULL,
-    is_admin BOOL NOT NULL
+    can_write BOOLEAN NOT NULL,
+    can_read BOOLEAN NOT NULL,
+    is_admin BOOLEAN NOT NULL
 );
 
 CREATE TABLE matches (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    id SERIAL PRIMARY KEY,
     event_code TEXT NOT NULL,
     match_number INTEGER NOT NULL,
     description TEXT NOT NULL,
@@ -68,9 +62,8 @@ CREATE TABLE matches (
 );
 
 CREATE TABLE match_teams (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    match_id INTEGER NOT NULL,
+    id SERIAL PRIMARY KEY,
+    match_id INTEGER NOT NULL REFERENCES matches(id) ON DELETE CASCADE,
     team_number INTEGER NOT NULL,
-    station TEXT NOT NULL,
-    FOREIGN KEY (match_id) REFERENCES matches(id) ON DELETE CASCADE
+    station TEXT NOT NULL
 );

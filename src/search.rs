@@ -1,6 +1,6 @@
 use rocket::{form::Form, http::CookieJar, State};
 use rocket_dyn_templates::{context, Template};
-use sqlx::SqlitePool;
+use sqlx::PgPool;
 
 use crate::{check_if_read, ScoutingEntryBasic};
 
@@ -12,7 +12,7 @@ pub struct SearchForm {
 
 
 #[post("/search", data = "<form_data>")]
-pub async fn search(pool: &State<SqlitePool>,
+pub async fn search(pool: &State<PgPool>,
     form_data: Form<SearchForm>  // Form data from the request)
 ) -> Template {
 
@@ -20,8 +20,8 @@ pub async fn search(pool: &State<SqlitePool>,
     let list = sqlx::query_as::<_, ScoutingEntryBasic>(r#"
         SELECT id, user, team, created_at
         FROM scouting_entry
-        WHERE team = ?
-        AND event_code = ?
+        WHERE team = $1
+        AND event_code = $2
         ORDER BY created_at DESC;
     "#)
     .bind(&form_data.team)

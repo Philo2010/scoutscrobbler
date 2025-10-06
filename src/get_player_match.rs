@@ -1,11 +1,11 @@
 use rocket::http::CookieJar;
 use rocket_dyn_templates::{context, Template};
-use sqlx::SqlitePool;
+use sqlx::{PgPool, Postgres};
 
 use crate::{check_if_read, ScoutingEntry, ScoutingEntryBasic};
 
 #[get("/get_player_match/<id>")]
-pub async fn get_player_match(pool: &rocket::State<SqlitePool>, id: i32) -> Template {
+pub async fn get_player_match(pool: &rocket::State<PgPool>, id: i32) -> Template {
 
     let entry = match sqlx::query_as::<_, ScoutingEntry>(r#"
         SELECT 
@@ -32,7 +32,7 @@ pub async fn get_player_match(pool: &rocket::State<SqlitePool>, id: i32) -> Temp
         LEFT JOIN auto_data ad ON ad.scouting_id = se.id
         LEFT JOIN teleop_data td ON td.scouting_id = se.id
         LEFT JOIN endgame_data eg ON eg.scouting_id = se.id
-        WHERE se.id = ?
+        WHERE se.id = $1
         LIMIT 1
     "#)
     .bind(id)  // <-- bind the specific id here
@@ -40,6 +40,7 @@ pub async fn get_player_match(pool: &rocket::State<SqlitePool>, id: i32) -> Temp
     .await {
         Ok(a) => a,
         Err(a) => {
+            println!("{a}");
             return Template::render("error", context! { error: "Database Error" });
         },
     };

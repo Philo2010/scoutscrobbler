@@ -1,7 +1,7 @@
 use std::str::FromStr;
 
 use rocket::{form::Form, http::CookieJar};
-use sqlx::{query, Row, SqlitePool};
+use sqlx::{query, PgPool, Row};
 use uuid::Uuid;
 
 use crate::ScoutingForm;
@@ -53,7 +53,7 @@ fn calculate_final_score(form: &ScoutingForm) -> i32 {
 }
 
 #[post("/submit", data = "<form_data>")]
-pub async fn submit_page(pool: &rocket::State<SqlitePool>, jar: &CookieJar<'_>, form_data: Form<ScoutingForm>) -> &'static str {
+pub async fn submit_page(pool: &rocket::State<PgPool>, jar: &CookieJar<'_>, form_data: Form<ScoutingForm>) -> &'static str {
 
     let userid_string = match jar.get("uuid") {
         Some(a) =>  a.value(),
@@ -73,7 +73,7 @@ pub async fn submit_page(pool: &rocket::State<SqlitePool>, jar: &CookieJar<'_>, 
     let user_request = sqlx::query(r#"
         SELECT can_write, username
         FROM user_list
-        WHERE id = ?
+        WHERE id = $1
     "#)
     .bind(userid)
     .fetch_optional(pool.inner())
@@ -113,20 +113,28 @@ pub async fn submit_page(pool: &rocket::State<SqlitePool>, jar: &CookieJar<'_>, 
     };
 
     // Insert into scouting_entry
-    let scouting_id = sqlx::query(
-    "INSERT INTO scouting_entry (user, team, matchid, total_score, is_verified, event_code, tournament_level, station) VALUES (?, ?, ?, ?, ?, ?, ?, ?)")
-    .bind(username)
+    let row = sqlx::query(
+        r#"
+        INSERT INTO scouting_entry (
+            "user", team, matchid, total_score, is_verified, event_code, tournament_level, station
+        ) 
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+        RETURNING id
+        "#
+    )
+    .bind(&username)
     .bind(form.team)
     .bind(form.matchid)
     .bind(calculate_final_score(&form))
-    .bind("Unverifed") //Not verifed now
-    .bind(form.event_code)
-    .bind(level)
-    .bind(station)
-    .execute(pool.inner())
+    .bind("Unverified") // fixed spelling
+    .bind(&form.event_code)
+    .bind(&level)
+    .bind(&station)
+    .fetch_one(pool.inner()) // ✅ instead of execute()
     .await
-    .expect("Insert failed")
-    .last_insert_rowid();
+    .expect("Insert failed");
+
+    let scouting_id: i32 = row.try_get("id").expect("Could not get ID");
 
     let moved = match form.moved.as_str() {
         "yes" => true,
@@ -136,7 +144,7 @@ pub async fn submit_page(pool: &rocket::State<SqlitePool>, jar: &CookieJar<'_>, 
     // Insert auto data
     sqlx::query("
         INSERT INTO auto_data (moved, scouting_id, L1, L2, L3, L4, algae_processor, algae_barge, algae_remove)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
     ")
     .bind(moved)
     .bind(scouting_id)
@@ -154,7 +162,7 @@ pub async fn submit_page(pool: &rocket::State<SqlitePool>, jar: &CookieJar<'_>, 
     // Insert teleop data
     sqlx::query("
         INSERT INTO teleop_data (scouting_id, L1, L2, L3, L4, algae_processor, algae_barge, algae_remove)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
     ")
     .bind(scouting_id)
     .bind(form.teleop_l1)
@@ -176,7 +184,7 @@ pub async fn submit_page(pool: &rocket::State<SqlitePool>, jar: &CookieJar<'_>, 
     // Insert endgame
     sqlx::query("
         INSERT INTO endgame_data (died, scouting_id, defense_rating, climb_type, comment)
-        VALUES (?, ?, ?, ?, ?)
+        VALUES ($1, $2, $3, $4, $5)
     ")
     .bind(died)
     .bind(scouting_id)
@@ -191,7 +199,7 @@ pub async fn submit_page(pool: &rocket::State<SqlitePool>, jar: &CookieJar<'_>, 
     let matchuniid: (i32,) = sqlx::query_as::<_, (i32,)>("
         SELECT match_id
         FROM match_teams
-        WHERE id = ?
+        WHERE id = $1
     ")
     .bind(form.id)
     .fetch_one(pool.inner())
@@ -200,21 +208,21 @@ pub async fn submit_page(pool: &rocket::State<SqlitePool>, jar: &CookieJar<'_>, 
 
     sqlx::query("
         DELETE FROM match_teams
-        WHERE id = ?
+        WHERE id = $1
     ")
     .bind(form.id)
     .execute(pool.inner())
     .await
     .unwrap();
 
-    let remaining: (i64,) = sqlx::query_as("SELECT COUNT(*) FROM match_teams WHERE match_id = ?")
+    let remaining: (i64,) = sqlx::query_as("SELECT COUNT(*) FROM match_teams WHERE match_id = $1")
     .bind(matchuniid.0) // store match_id in your form
     .fetch_one(pool.inner())
     .await.unwrap();
 
     // If no teams left, delete the match
     if remaining.0 == 0 {
-        sqlx::query("DELETE FROM matches WHERE id = ?")
+        sqlx::query("DELETE FROM matches WHERE id = $1")
             .bind(matchuniid.0)
             .execute(pool.inner())
             .await.unwrap();

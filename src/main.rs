@@ -1,19 +1,18 @@
 #[macro_use] extern crate rocket;
 
-use std::str::FromStr;
+use std::{process::exit, str::FromStr};
 use reqwest::Client;
 use rocket::fs::FileServer;
 use rocket::serde::Serialize;
 use rocket::State;
 use rocket_dyn_templates::{context, Template};
-use sqlx::Row;
+use sqlx::{postgres::{PgAdvisoryLock, PgPoolOptions}, types::chrono, Postgres, Row};
 use rocket::fs::relative;
-use rocket_db_pools::sqlx::{self, SqlitePool};
+use rocket_db_pools::sqlx::{self, PgPool};
 use sqlx::types::Uuid;
 use base64::{engine::general_purpose, Engine};
 
 mod submit;
-mod entries;
 mod user;
 mod login;
 mod search;
@@ -24,11 +23,18 @@ mod queue;
 mod scout;
 mod submit_bad;
 
+
+//CONFIGS
 //Make the auth header
 
 // username:password = "***REMOVED***"
 // Base64-encoded = "REDACTED"
 
+
+//Info for postgres server
+const username_db: &'static str = "postgres";
+const password_db: &'static str = "newpassword";
+const name_db: &'static str = "scoutscrobbler";
 
 //Generatic types used all across code
 
@@ -69,12 +75,12 @@ pub struct ScoutingForm {
 }
 #[derive(Debug, sqlx::FromRow, Serialize)]
 struct ScoutingEntry {
-    id: i64,
+    id: i32,
     team: i32,
     user: Option<String>,
     matchid: i32,
     total_score: i32,
-    created_at: String,
+    created_at: chrono::NaiveDateTime,
 
     moved: bool,
     auto_l1: Option<i32>,
@@ -101,10 +107,10 @@ struct ScoutingEntry {
 
 #[derive(Debug, sqlx::FromRow, Serialize)]
 struct ScoutingEntryBasic {
-    id: i64,
+    id: i32,
     user: String,
     team: i32,
-    created_at: String,
+    created_at: chrono::NaiveDateTime,
 }
 
 #[derive(Debug, sqlx::FromRow, Serialize)]
@@ -116,7 +122,7 @@ struct User<'a> {
     pub can_read: bool,
 }
 
-async fn check_if_read(userid_string: &str, pool: &State<SqlitePool>) -> Option<Template> {
+async fn check_if_read(userid_string: &str, pool: &State<PgPool>) -> Option<Template> {
     let userid = match Uuid::from_str(userid_string) {
         Ok(a) => a,
         Err(_) => {
@@ -128,7 +134,7 @@ async fn check_if_read(userid_string: &str, pool: &State<SqlitePool>) -> Option<
     let user_request = sqlx::query(r#"
         SELECT can_read
         FROM user_list
-        WHERE id = ?
+        WHERE id = $1
     "#)
     .bind(userid)
     .fetch_optional(pool.inner())
@@ -148,8 +154,7 @@ async fn check_if_read(userid_string: &str, pool: &State<SqlitePool>) -> Option<
     };
 
     if !can_read {
-        let entries: Vec<ScoutingEntry> = Vec::new();
-        return  Some(Template::render("entries", context! { entries }));
+        return Some(Template::render("error", context! { error: "Dont have reading perms!" }));
     }
     None
 }
@@ -168,17 +173,24 @@ async fn rocket() -> _ {
     auth_headers.insert("accept", "application/json".parse().unwrap());
     auth_headers.insert("X-TBA-Auth-Key", "***REMOVED***".parse().unwrap());
 
-    let db_pool = SqlitePool::connect("sqlite:main.sqlite").await.expect("Failed to connect to DB");
-
-    sqlx::query("PRAGMA foreign_keys = ON;")
-    .execute(&db_pool)
-    .await.expect("Could not enable foreign keys");
+    let db_url = format!("postgres://{username_db}:{password_db}@localhost:5432/{name_db}");
+    
+    let db_pool = match PgPoolOptions::new()
+    .max_connections(10)
+    .connect(db_url.as_str())
+    .await {
+        Ok(a) => a,
+        Err(e) => {
+            println!("ERROR WITH POSTGRES: {e}");
+            exit(1);
+        }
+    };
 
     rocket::build()
     .manage(db_pool)
     .manage(client)
     .manage(auth_headers)
     .attach(Template::fairing())
-    .mount("/", routes![submit::submit_page, entries::view_entries, user::new_user, login::login, search::search, get_player_match::get_player_match, graph::graph, queue::queue_form, scout::scout, verify::verify, submit_bad::submit_page])
+    .mount("/", routes![submit::submit_page, user::new_user, login::login, search::search, get_player_match::get_player_match, graph::graph, queue::queue_form, scout::scout, submit_bad::submit_page])
     .mount("/", FileServer::from(relative!("static")))
 }

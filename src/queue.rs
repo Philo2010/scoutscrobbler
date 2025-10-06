@@ -7,8 +7,8 @@ use rocket::{data, form};
 use rocket::{form::Form, http::CookieJar, State};
 use rocket_dyn_templates::{context, Template};
 use serde::{Deserialize, Serialize};
-use sqlx::{SqlitePool, Row};
 use sqlx::types::Uuid;
+use sqlx::{PgPool, Row, Error};
 
 
 
@@ -52,11 +52,11 @@ pub struct Match {
 
 #[derive(Debug, Deserialize, Serialize)]
 pub struct Team {
-    pub teamNumber: u32,
+    pub teamNumber: i32,
     pub station: String,
 }
 
-async fn check_if_admin(userid_string: &str, pool: &State<SqlitePool>) -> Option<Template> {
+async fn check_if_admin(userid_string: &str, pool: &State<PgPool>) -> Option<Template> {
     let userid = match Uuid::from_str(userid_string) {
         Ok(a) => a,
         Err(_) => {
@@ -68,7 +68,7 @@ async fn check_if_admin(userid_string: &str, pool: &State<SqlitePool>) -> Option
     let user_request = sqlx::query(r#"
         SELECT is_admin
         FROM user_list
-        WHERE id = ?
+        WHERE id = $1
     "#)
     .bind(userid)
     .fetch_optional(pool.inner())
@@ -94,15 +94,14 @@ async fn check_if_admin(userid_string: &str, pool: &State<SqlitePool>) -> Option
 }
 
 pub async fn insert_schedule(
-    pool: &SqlitePool,
+    pool: &PgPool,
     event_code: &str,
     schedule: ScheduleData,
-) -> Result<(), sqlx::Error> {
-
+) -> Result<(), Error> {
     for m in schedule.Schedule {
         let row = sqlx::query(
             "INSERT INTO matches (event_code, match_number, description, tournament_level)
-             VALUES (?, ?, ?, ?)
+             VALUES ($1, $2, $3, $4)
              RETURNING id"
         )
         .bind(event_code)
@@ -112,14 +111,13 @@ pub async fn insert_schedule(
         .fetch_one(pool)
         .await?;
 
-        let match_id: i64 = row.try_get("id")?;
+        let match_id: i32 = row.try_get("id")?;
 
-        // 3. Insert teams and match_teams
         for t in m.teams {
-            // Insert match-team relationship
             sqlx::query(
-                "INSERT OR IGNORE INTO match_teams (match_id, team_number, station)
-                 VALUES (?, ?, ?)"
+                "INSERT INTO match_teams (match_id, team_number, station)
+                 VALUES ($1, $2, $3)
+                 ON CONFLICT DO NOTHING"
             )
             .bind(match_id)
             .bind(t.teamNumber)
@@ -128,10 +126,12 @@ pub async fn insert_schedule(
             .await?;
         }
     }
+
     Ok(())
 }
 
-pub async fn pull_from_blue(client: &Client, headers: &HeaderMap, pool: &SqlitePool, event_code: &String) -> Result<Vec<TbaMatch>, reqwest::Error> {
+
+pub async fn pull_from_blue(client: &Client, headers: &HeaderMap, event_code: &String) -> Result<Vec<TbaMatch>, reqwest::Error> {
     //https://www.thebluealliance.com/api/v3/event/2025tacy/matches/simple
 
     //Make a request to get the major data
@@ -150,7 +150,7 @@ impl From<&TbaMatch> for Match {
 
         // Red teams
         for (i, team_key) in tba.alliances.red.team_keys.iter().enumerate() {
-            if let Some(num) = team_key.strip_prefix("frc").and_then(|n| n.parse::<u32>().ok()) {
+            if let Some(num) = team_key.strip_prefix("frc").and_then(|n| n.parse::<i32>().ok()) {
                 teams.push(Team {
                     teamNumber: num,
                     station: format!("Red{}", i + 1),
@@ -160,7 +160,7 @@ impl From<&TbaMatch> for Match {
 
         // Blue teams
         for (i, team_key) in tba.alliances.blue.team_keys.iter().enumerate() {
-            if let Some(num) = team_key.strip_prefix("frc").and_then(|n| n.parse::<u32>().ok()) {
+            if let Some(num) = team_key.strip_prefix("frc").and_then(|n| n.parse::<i32>().ok()) {
                 teams.push(Team {
                     teamNumber: num,
                     station: format!("Blue{}", i + 1),
@@ -183,7 +183,7 @@ impl From<&TbaMatch> for Match {
 }
 
 #[post("/queue", data = "<form_data>")]
-pub async fn queue_form(client: &State<Client>, headers: &State<HeaderMap>, pool: &rocket::State<SqlitePool>, jar: &CookieJar<'_>, form_data: Form<QueueForm>) -> Template {
+pub async fn queue_form(client: &State<Client>, headers: &State<HeaderMap>, pool: &rocket::State<PgPool>, jar: &CookieJar<'_>, form_data: Form<QueueForm>) -> Template {
 
     let userid_string = match jar.get("uuid") {
         Some(a) =>  a.value(),
@@ -202,7 +202,7 @@ pub async fn queue_form(client: &State<Client>, headers: &State<HeaderMap>, pool
     //We now know the user is a admin
     //Pull data to make a requeast
 
-    let request = match pull_from_blue(client, headers, pool, &form_data.event).await {
+    let request = match pull_from_blue(client, headers, &form_data.event).await {
         Ok(a) => a,
         Err(_) => {
             return Template::render("error", context![error: "Database error!"]);

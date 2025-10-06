@@ -1,7 +1,9 @@
+
+/* 
 use reqwest::{header::HeaderMap, Client};
 use rocket::{http::CookieJar, State};
 use rocket_dyn_templates::{context, Template};
-use sqlx::{SqlitePool, Row};
+use sqlx::{Row};
 
 pub async fn get_unq_event_codes(pool: &SqlitePool) -> Result<Vec<String>, sqlx::Error> {
     let a = sqlx::query(" 
@@ -56,3 +58,5 @@ pub async fn verify(pool: &State<SqlitePool>, client: &State<Client>, headers: &
 
     Template::render("error", context![error: "Done"])
 }
+
+    */

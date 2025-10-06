@@ -1,6 +1,6 @@
 use rocket::{form::Form, State};
 use rocket_dyn_templates::{context, Template};
-use sqlx::{SqlitePool, Row};
+use sqlx::{PgPool, Row};
 use uuid::Uuid;
 
 #[derive(Debug, FromForm)]
@@ -11,11 +11,11 @@ pub struct UserRequestLogin {
 
 
 #[post("/login", data = "<form_data>")]
-pub async fn login(pool: &State<SqlitePool>, form_data: Form<UserRequestLogin>) -> Template {
+pub async fn login(pool: &State<PgPool>, form_data: Form<UserRequestLogin>) -> Template {
     let user_result = sqlx::query(r#"
         SELECT id, can_read, can_write, is_admin
         FROM user_list
-        WHERE username = ?
+        WHERE username = $1
     "#)
     .bind(&form_data.username) // Bind the username to the query
     .fetch_optional(pool.inner()) // Fetch one or none
