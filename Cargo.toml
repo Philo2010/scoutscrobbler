@@ -19,3 +19,6 @@ base64 = "0.22.1"
 [dependencies.rocket_db_pools]
 version = "0.2.0"
 features = ["sqlx_postgres"]
+
+[dev-dependencies]
+dotenvy = "0.15"

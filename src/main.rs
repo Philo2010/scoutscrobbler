@@ -18,10 +18,11 @@ mod login;
 mod search;
 mod get_player_match;
 mod graph;
-mod verify;
+//mod verify;
 mod queue;
 mod scout;
 mod submit_bad;
+mod blue;
 
 
 //CONFIGS
@@ -37,7 +38,7 @@ const password_db: &'static str = "newpassword";
 const name_db: &'static str = "scoutscrobbler";
 
 //API for blue alleince
-const blue_api: &'static str = "[INSERT API KEY HERE]";
+const blue_api: &'static str = "{{ INSERT API HERE }}";
 
 //Generatic types used all across code
 

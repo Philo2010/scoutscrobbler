@@ -9,30 +9,13 @@ use rocket_dyn_templates::{context, Template};
 use serde::{Deserialize, Serialize};
 use sqlx::types::Uuid;
 use sqlx::{PgPool, Row, Error};
+use crate::blue::*;
 
 
 
 #[derive(Debug, FromForm)]
 struct QueueForm {
     #[field(name = "event")] event: String,
-}
-
-#[derive(Debug, Deserialize)]
-pub struct TbaMatch {
-    pub comp_level: String,
-    pub match_number: i32,
-    pub alliances: Alliances,
-}
-
-#[derive(Debug, Deserialize)]
-pub struct Alliances {
-    pub red: Alliance,
-    pub blue: Alliance,
-}
-
-#[derive(Debug, Deserialize)]
-pub struct Alliance {
-    pub team_keys: Vec<String>,
 }
 
 //Serde types for seralziatoin
@@ -130,20 +113,6 @@ pub async fn insert_schedule(
     Ok(())
 }
 
-
-pub async fn pull_from_blue(client: &Client, headers: &HeaderMap, event_code: &String) -> Result<Vec<TbaMatch>, reqwest::Error> {
-    //https://www.thebluealliance.com/api/v3/event/2025tacy/matches/simple
-
-    //Make a request to get the major data
-    let request = client.get(format!("https://www.thebluealliance.com/api/v3/event/{}/matches/simple", event_code))
-        .headers(headers.clone()).send().await?;
-
-    let body: Vec<TbaMatch> = request.json().await?;
-    
-
-    Ok(body)
-}
-
 impl From<&TbaMatch> for Match {
     fn from(tba: &TbaMatch) -> Self {
         let mut teams = Vec::new();
@@ -167,16 +136,19 @@ impl From<&TbaMatch> for Match {
                 });
             }
         }
-        let formated_level = match tba.comp_level.as_str() {
-                "qm" => "Qualification".to_string(),
-                "sf" => "Playoff".to_string(),
-                _ => "Playoff".to_string() //Fallback
+
+        let (formatted_level, match_number): (String, i32) = match tba.comp_level.as_str() {
+            "qm" => ("Qualification".to_string(), tba.match_number),
+            "sf" => ("Playoff".to_string(), tba.set_number),
+            "f" => ("Playoff/Finals".to_string(), tba.match_number),
+            _ => ("Playoff".to_string(), tba.set_number), // Fallback
         };
 
+
         Self {
-            description: format!("{} {}",formated_level, tba.match_number),
-            matchNumber: tba.match_number,
-            tournamentLevel: formated_level,
+            description: format!("{} {}", formatted_level, match_number),
+            matchNumber: match_number,
+            tournamentLevel: formatted_level,
             teams,
         }
     }
@@ -209,9 +181,16 @@ pub async fn queue_form(client: &State<Client>, headers: &State<HeaderMap>, pool
         },
     };
 
-    let data: ScheduleData = ScheduleData {
+    let mut data: ScheduleData = ScheduleData {
         Schedule: request.iter().map(Match::from).collect::<Vec<_>>(),
     };
+
+    //Sort
+    data.Schedule.sort_by(|a, b| {
+    a.tournamentLevel
+        .cmp(&b.tournamentLevel)
+        .then(a.matchNumber.cmp(&b.matchNumber))
+    });
     
     match insert_schedule(pool.inner(), &form_data.event, data).await {
         Ok(_) => {},

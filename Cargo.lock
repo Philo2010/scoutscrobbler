@@ -2398,6 +2398,7 @@ dependencies = [
  "base64 0.22.1",
  "bcrypt",
  "chrono",
+ "dotenvy",
  "reqwest",
  "rocket",
  "rocket_db_pools",
