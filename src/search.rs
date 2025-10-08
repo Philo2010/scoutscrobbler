@@ -18,7 +18,7 @@ pub async fn search(pool: &State<PgPool>,
 
 
     let list = sqlx::query_as::<_, ScoutingEntryBasic>(r#"
-        SELECT id, user, team, created_at
+        SELECT id, "user", team, created_at
         FROM scouting_entry
         WHERE team = $1
         AND event_code = $2
