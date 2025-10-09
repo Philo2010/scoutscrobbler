@@ -12,6 +12,8 @@ use rocket_db_pools::sqlx::{self, PgPool};
 use sqlx::types::Uuid;
 use base64::{engine::general_purpose, Engine};
 
+use crate::remove_queue::queue_remove;
+
 mod submit;
 mod user;
 mod login;
@@ -23,6 +25,7 @@ mod queue;
 mod scout;
 mod submit_bad;
 mod blue;
+mod remove_queue;
 
 
 //CONFIGS
@@ -195,6 +198,6 @@ async fn rocket() -> _ {
     .manage(client)
     .manage(auth_headers)
     .attach(Template::fairing())
-    .mount("/", routes![submit::submit_page, user::new_user, login::login, search::search, get_player_match::get_player_match, graph::graph, queue::queue_form, scout::scout, submit_bad::submit_page])
+    .mount("/", routes![submit::submit_page, user::new_user, login::login, search::search, get_player_match::get_player_match, graph::graph, queue::queue_form, scout::scout, submit_bad::submit_page, remove_queue::queue_remove])
     .mount("/", FileServer::from(relative!("static")))
 }

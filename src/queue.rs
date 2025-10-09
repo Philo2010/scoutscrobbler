@@ -39,7 +39,7 @@ pub struct Team {
     pub station: String,
 }
 
-async fn check_if_admin(userid_string: &str, pool: &State<PgPool>) -> Option<Template> {
+pub async fn check_if_admin(userid_string: &str, pool: &State<PgPool>) -> Option<Template> {
     let userid = match Uuid::from_str(userid_string) {
         Ok(a) => a,
         Err(_) => {
