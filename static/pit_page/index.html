@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pit</title>
+    <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+
+    <h2>Pit</h2>
+
+    <form action="/pit_submit" method="POST">
+        <label for="team">Team:</label><br>
+        <input type="number" id="team" name="team" required><br><br>
+
+        <label for="event_code">Event code:</label><br>
+        <input type="text" id="event_code" name="event_code" required><br><br>
+
+        <label for="comment">Comments</label>
+        <textarea name="comment" id="commit"></textarea>
+
+
+        <input type="submit" value="Pit">
+    </form>
+
+</body>
+</html>

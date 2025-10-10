@@ -176,7 +176,8 @@ pub async fn queue_form(client: &State<Client>, headers: &State<HeaderMap>, pool
 
     let request = match pull_from_blue(client, headers, &form_data.event).await {
         Ok(a) => a,
-        Err(_) => {
+        Err(a) => {
+            println!("{:?}", a);
             return Template::render("error", context![error: "Database error!"]);
         },
     };

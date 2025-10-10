@@ -67,3 +67,10 @@ CREATE TABLE match_teams (
     team_number INTEGER NOT NULL,
     station TEXT NOT NULL
 );
+
+CREATE TABLE pit_data (
+    id SERIAL PRIMARY KEY,
+    team INTEGER NOT NULL,
+    event_code TEXT NOT NULL,
+    comment TEXT NOT NULL
+);

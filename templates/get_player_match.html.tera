@@ -41,5 +41,8 @@
         <p>Defense Rating: {{ entry.defense_rating }}</p>
         <p>Climb Type: {{ entry.climb_type }}</p>
         <p>Comment: {{ entry.comment }}</p>
+    
+    <h1>Pit data</h1>
+        <p>{{ pit_data }}</p>
 </body>
 </html>

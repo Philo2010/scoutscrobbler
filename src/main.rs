@@ -26,6 +26,7 @@ mod scout;
 mod submit_bad;
 mod blue;
 mod remove_queue;
+mod pit;
 
 
 //CONFIGS
@@ -41,7 +42,7 @@ const password_db: &'static str = "newpassword";
 const name_db: &'static str = "scoutscrobbler";
 
 //API for blue alleince
-const blue_api: &'static str = "{{ INSERT API HERE }}";
+const blue_api: &'static str = "{{ INSERT API KEY }}";
 
 //Generatic types used all across code
 
@@ -88,6 +89,7 @@ struct ScoutingEntry {
     matchid: i32,
     total_score: i32,
     created_at: chrono::NaiveDateTime,
+    event_code: String,
 
     moved: bool,
     auto_l1: Option<i32>,
@@ -198,6 +200,6 @@ async fn rocket() -> _ {
     .manage(client)
     .manage(auth_headers)
     .attach(Template::fairing())
-    .mount("/", routes![submit::submit_page, user::new_user, login::login, search::search, get_player_match::get_player_match, graph::graph, queue::queue_form, scout::scout, submit_bad::submit_page, remove_queue::queue_remove])
+    .mount("/", routes![submit::submit_page, user::new_user, login::login, search::search, get_player_match::get_player_match, graph::graph, queue::queue_form, scout::scout, submit_bad::submit_page, remove_queue::queue_remove, pit::pit_submit])
     .mount("/", FileServer::from(relative!("static")))
 }
