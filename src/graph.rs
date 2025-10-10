@@ -16,6 +16,7 @@ pub struct DataNodeTeam {
     created_at: chrono::NaiveDateTime,
     auto_total: i32,
     teleop_total: i32,
+    defense: i32,
 }
 
 pub async fn get_team_data(team: &i32, pool: &PgPool) -> Result<Vec<DataNodeTeam>, Error> {
@@ -24,6 +25,7 @@ pub async fn get_team_data(team: &i32, pool: &PgPool) -> Result<Vec<DataNodeTeam
             se.total_score,
             se.created_at,
             se.matchid,
+            e.defense_rating as defense,
 
             -- Auto total with weights
             COALESCE(a.L4, 0) * 7 +
@@ -44,6 +46,7 @@ pub async fn get_team_data(team: &i32, pool: &PgPool) -> Result<Vec<DataNodeTeam
         FROM scouting_entry se
         LEFT JOIN auto_data a ON a.scouting_id = se.id
         LEFT JOIN teleop_data t ON t.scouting_id = se.id
+        LEFT JOIN endgame_data e ON t.scouting_id = se.id
         WHERE se.team = $1
         ORDER BY se.created_at ASC;
     "#)
@@ -59,7 +62,8 @@ pub async fn graph(pool: &rocket::State<PgPool>,  form_data: Form<TeamSearch>) -
     let mut team_data: Vec<Vec<DataNodeTeam>> = Vec::new();
     for team_number in form_data.team.iter() {
         let data = match get_team_data(team_number, pool.inner()).await {
-            Err(_) => {
+            Err(a) => {
+                println!("{a}");
                 continue;
             },
             Ok(a) => a,

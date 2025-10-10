@@ -16,14 +16,16 @@
 <h2>Teleop Score Over Time</h2>
 <canvas id="lineChartTeleop" width="800" height="400"></canvas>
 
+<h2>Defense Rating Over Time</h2>
+<canvas id="lineChartDefense" width="800" height="400"></canvas>
+
 <script>
-    // 🎨 Dynamic color generator for unlimited distinct colors
     function generateColor(index) {
         const hue = (index * 137.508) % 360; // evenly spaced hues
         return `hsl(${hue}, 70%, 55%)`;
     }
 
-    // Use the timestamps from the first team for labels
+    // Use timestamps from the first team for labels
     const labels = [
         {% if teams and teams | length > 0 %}
             {% for item in teams[0] %}
@@ -83,6 +85,23 @@
         {% endfor %}
     ];
 
+    // --- Defense rating datasets ---
+    const datasetsDefense = [
+        {% for team in teams %}
+        {
+            label: "Team {{ team_numbers[loop.index0] }} Defense",
+            data: [
+                {% for item in team %}
+                    {{ item.defense }}{% if not loop.last %},{% endif %}
+                {% endfor %}
+            ],
+            fill: false,
+            borderColor: generateColor({{ loop.index0 }}),
+            tension: 0.1
+        }{% if not loop.last %},{% endif %}
+        {% endfor %}
+    ];
+
     // --- Common chart options ---
     const commonOptions = {
         scales: {
@@ -103,7 +122,7 @@
         },
         plugins: {
             legend: {
-                position: 'bottom'
+                position: 'top'
             }
         }
     };
@@ -125,6 +144,26 @@
         type: 'line',
         data: { labels, datasets: datasetsTeleop },
         options: commonOptions
+    });
+
+    // --- Defense chart (1–5 scale) ---
+    new Chart(document.getElementById('lineChartDefense'), {
+        type: 'line',
+        data: { labels, datasets: datasetsDefense },
+        options: {
+            ...commonOptions,
+            scales: {
+                ...commonOptions.scales,
+                y: {
+                    min: 0,
+                    max: 5,
+                    title: {
+                        display: true,
+                        text: 'Defense Rating (1–5)'
+                    }
+                }
+            }
+        }
     });
 </script>
 </body>
