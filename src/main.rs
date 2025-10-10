@@ -10,8 +10,6 @@ use sqlx::{postgres::{PgAdvisoryLock, PgPoolOptions}, types::chrono, Postgres, R
 use rocket::fs::relative;
 use rocket_db_pools::sqlx::{self, PgPool};
 use sqlx::types::Uuid;
-use base64::{engine::general_purpose, Engine};
-
 use crate::remove_queue::queue_remove;
 
 mod submit;

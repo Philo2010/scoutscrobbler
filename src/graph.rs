@@ -6,8 +6,7 @@ use crate::check_if_read;
 
 #[derive(Debug, FromForm)]
 struct TeamSearch {
-    #[field(name = "team")] pub team: i32,
-    #[field(name = "team2")] pub team2: Option<i32>,
+    pub team: Vec<i32>,
 }
 
 #[derive(FromRow, serde::Serialize)]
@@ -57,33 +56,19 @@ pub async fn get_team_data(team: &i32, pool: &PgPool) -> Result<Vec<DataNodeTeam
 #[post("/graph_team", data = "<form_data>")]
 pub async fn graph(pool: &rocket::State<PgPool>,  form_data: Form<TeamSearch>) -> Template {
 
-    //We should precaluate this value the read it, but im not changeing structs yet again!
-    let dataquery = get_team_data(&form_data.team, pool.inner()).await;
-
-    let data = match dataquery {
-        Ok(a) => {
-            a
-        },
-        Err(a) => {
-            println!("{a}");
-            return Template::render("error", context! {error: "Database error"});
-        },
-    };
-
-    if let Some(team2) = &form_data.team2 {
-        let dataquery_2 = get_team_data(team2, pool.inner()).await;
-        let data2 = match dataquery_2 {
-            Ok(a) => {
-                a
+    let mut team_data: Vec<Vec<DataNodeTeam>> = Vec::new();
+    for team_number in form_data.team.iter() {
+        let data = match get_team_data(team_number, pool.inner()).await {
+            Err(_) => {
+                continue;
             },
-            Err(a) => {
-                println!("{a}");
-                return Template::render("error", context! {error: "Database error"});
-            },
+            Ok(a) => a,
         };
-        
-        Template::render("graph_render",context![team_data: data, team_data2: data2])   
-    } else {
-        return Template::render("graph_single",context![team_data: data]);
+        team_data.push(data);
     }
+
+    Template::render("graph_render", context! {
+        teams: team_data,
+        team_numbers: &form_data.team
+    })
 }

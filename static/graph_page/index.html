@@ -3,23 +3,44 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Graph</title>
+    <title>Graph Teams</title>
     <link rel="stylesheet" href="/style.css">
 </head>
 <body>
 
-    <h2>Graph</h2>
+<h2>Graph Teams</h2>
 
-    <form action="/graph_team" method="POST">
-        <label for="team">Team:</label><br>
-        <input type="number" id="team" name="team" required><br><br>
+<form action="/graph_team" method="POST" id="teamForm">
+    <div id="teamContainer">
+        <div class="team-input">
+            <label>Team:</label>
+            <input type="number" name="team" required>
+            <button type="button" onclick="removeTeam(this)">Remove</button>
+        </div>
+    </div>
 
-        <label for="team2">Team 2:</label><br>
-        <input type="number" id="team2" name="team2"><br><br>
+    <button type="button" id="addTeamBtn">Add Team</button>
+    <br><br>
+    <input type="submit" value="Graph">
+</form>
 
+<script>
+    const teamContainer = document.getElementById('teamContainer');
+    document.getElementById('addTeamBtn').addEventListener('click', () => {
+        const div = document.createElement('div');
+        div.className = 'team-input';
+        div.innerHTML = `
+            <label>Team:</label>
+            <input type="number" name="team" required>
+            <button type="button" onclick="removeTeam(this)">Remove</button>
+        `;
+        teamContainer.appendChild(div);
+    });
 
-        <input type="submit" value="Graph">
-    </form>
+    function removeTeam(btn) {
+        btn.parentElement.remove();
+    }
+</script>
 
 </body>
 </html>
