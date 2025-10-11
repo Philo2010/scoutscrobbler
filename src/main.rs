@@ -25,7 +25,7 @@ mod submit_bad;
 mod blue;
 mod remove_queue;
 mod pit;
-
+//MAJOR TODO: Change structs for set, for now, we dont need such data
 
 //CONFIGS
 //Make the auth header
@@ -40,7 +40,7 @@ const password_db: &'static str = "newpassword";
 const name_db: &'static str = "scoutscrobbler";
 
 //API for blue alleince
-const blue_api: &'static str = "***REMOVED***";
+const blue_api: &'static str = "{{ AHHHH }}";
 
 //Generatic types used all across code
 

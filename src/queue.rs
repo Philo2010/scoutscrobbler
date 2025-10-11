@@ -137,19 +137,19 @@ impl From<&TbaMatch> for Match {
             }
         }
 
-        let (formatted_level, match_number): (String, i32) = match tba.comp_level.as_str() {
-            "qm" => ("Qualification".to_string(), tba.match_number),
-            "sf" => ("Playoff".to_string(), tba.set_number),
-            "f" => ("Playoff/Finals".to_string(), tba.match_number),
-            "ef" => ("Playoff/Eighth-Finals".to_string(), tba.match_number),
-            "qf" => ("Playoff/Quarterfinals".to_string(), tba.match_number), 
-            _ => ("Playoff".to_string(), tba.set_number), // Fallback
+        let formatted_level: String = match tba.comp_level.as_str() {
+            "qm" => ("Qualification".to_string()),
+            "sf" => ("Playoff".to_string()),
+            "f" => ("Playoff/Finals".to_string()),
+            "ef" => ("Playoff/Eighth-Finals".to_string()),
+            "qf" => ("Playoff/Quarterfinals".to_string()), 
+            _ => ("Playoff".to_string()), // Fallback
         };
 
 
         Self {
-            description: format!("{} {}", formatted_level, match_number),
-            matchNumber: match_number,
+            description: format!("{} Set {} Match {}", formatted_level, tba.set_number, tba.match_number),
+            matchNumber: tba.match_number,
             tournamentLevel: formatted_level,
             teams,
         }
