@@ -40,7 +40,7 @@ const password_db: &'static str = "newpassword";
 const name_db: &'static str = "scoutscrobbler";
 
 //API for blue alleince
-const blue_api: &'static str = "{{ API KEY HERE }}";
+const blue_api: &'static str = "***REMOVED***";
 
 //Generatic types used all across code
 

@@ -141,6 +141,8 @@ impl From<&TbaMatch> for Match {
             "qm" => ("Qualification".to_string(), tba.match_number),
             "sf" => ("Playoff".to_string(), tba.set_number),
             "f" => ("Playoff/Finals".to_string(), tba.match_number),
+            "ef" => ("Playoff/Eighth-Finals".to_string(), tba.match_number),
+            "qf" => ("Playoff/Quarterfinals".to_string(), tba.match_number), 
             _ => ("Playoff".to_string(), tba.set_number), // Fallback
         };
 
