@@ -24,7 +24,7 @@ pub async fn queue_remove(pool: &rocket::State<PgPool>, jar: &CookieJar<'_>) -> 
 
     //Remove everything from queue
     let result = sqlx::query(r#"
-    DELETE FROM scouting_entry
+    DELETE FROM matches
     "#).execute(pool.inner()).await;
     
     match result {
@@ -37,7 +37,7 @@ pub async fn queue_remove(pool: &rocket::State<PgPool>, jar: &CookieJar<'_>) -> 
     }
 
     let result = sqlx::query(r#"
-    ALTER SEQUENCE scouting_entry_id_seq RESTART WITH 1
+    ALTER SEQUENCE matches_id_seq RESTART WITH 1
     "#).execute(pool.inner()).await;
 
     match result {
