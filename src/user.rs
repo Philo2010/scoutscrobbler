@@ -2,7 +2,6 @@ use rocket::{form::Form, State};
 use sqlx::{Error, PgPool};
 use uuid::Uuid;
 
-const bcrypt_cost: u32 = 12;
 
 #[derive(Debug, FromForm)]
 pub struct UserRequestCreate {
@@ -21,7 +20,7 @@ pub async fn new_user(
     form_data: Form<UserRequestCreate>  // Form data from the request
 ) -> &'static str {
     // Validate admin password
-    if form_data.passcreate != "VerySexyPass" {
+    if form_data.passcreate != crate::admin_create_password {
         return "Invalid admin password, please contact Philip for password.";
     }
 

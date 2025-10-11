@@ -41,6 +41,7 @@ const name_db: &'static str = "scoutscrobbler";
 
 //API for blue alleince
 const blue_api: &'static str = "{{ AHHHH }}";
+const admin_create_password: &'static str = "{{ INSERT PASSWORD }}";
 
 //Generatic types used all across code
 
