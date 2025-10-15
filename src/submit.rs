@@ -113,7 +113,7 @@ pub async fn submit_page(pool: &rocket::State<PgPool>, jar: &CookieJar<'_>, form
     };
 
     // Insert into scouting_entry
-    let row = sqlx::query(
+    let row = match sqlx::query(
         r#"
         INSERT INTO scouting_entry (
             "user", team, matchid, total_score, is_verified, event_code, tournament_level, station
@@ -131,8 +131,10 @@ pub async fn submit_page(pool: &rocket::State<PgPool>, jar: &CookieJar<'_>, form
     .bind(&level)
     .bind(&station)
     .fetch_one(pool.inner())
-    .await
-    .expect("Insert failed");
+    .await {
+        Ok(a) => {a},
+        Err(a) => {return "Database Error";},
+    };
 
     let scouting_id: i32 = row.try_get("id").expect("Could not get ID");
 
@@ -142,7 +144,7 @@ pub async fn submit_page(pool: &rocket::State<PgPool>, jar: &CookieJar<'_>, form
     };
 
     // Insert auto data
-    sqlx::query("
+    match sqlx::query("
         INSERT INTO auto_data (moved, scouting_id, L1, L2, L3, L4, algae_processor, algae_barge, algae_remove)
         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
     ")
@@ -156,11 +158,13 @@ pub async fn submit_page(pool: &rocket::State<PgPool>, jar: &CookieJar<'_>, form
     .bind(form.auto_algae_barge)
     .bind(form.auto_algae_remove)
     .execute(pool.inner())
-    .await
-    .unwrap();
+    .await {
+        Ok(_) => {},
+        Err(a) => {return "Database Error";},
+    };
 
     // Insert teleop data
-    sqlx::query("
+    match sqlx::query("
         INSERT INTO teleop_data (scouting_id, L1, L2, L3, L4, algae_processor, algae_barge, algae_remove)
         VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
     ")
@@ -173,8 +177,10 @@ pub async fn submit_page(pool: &rocket::State<PgPool>, jar: &CookieJar<'_>, form
     .bind(form.teleop_algae_barge)
     .bind(form.teleop_algae_remove)
     .execute(pool.inner())
-    .await
-    .unwrap();
+    .await {
+        Ok(_) => {},
+        Err(a) => {return "Database Error";},
+    };
 
     let died = match form.died.as_str() {
         "yes" => true,
@@ -182,7 +188,7 @@ pub async fn submit_page(pool: &rocket::State<PgPool>, jar: &CookieJar<'_>, form
     };
 
     // Insert endgame
-    sqlx::query("
+    match sqlx::query("
         INSERT INTO endgame_data (died, scouting_id, defense_rating, climb_type, comment)
         VALUES ($1, $2, $3, $4, $5)
     ")
@@ -192,40 +198,52 @@ pub async fn submit_page(pool: &rocket::State<PgPool>, jar: &CookieJar<'_>, form
     .bind(&form.climb_type)
     .bind(&form.comment)
     .execute(pool.inner())
-    .await
-    .unwrap();
+    .await {
+        Ok(_) => {},
+        Err(a) => {return "Database Error";},
+    };
 
     //Get match id (uni)
-    let matchuniid: (i32,) = sqlx::query_as::<_, (i32,)>("
+    let matchuniid: (i32,) = match sqlx::query_as::<_, (i32,)>("
         SELECT match_id
         FROM match_teams
         WHERE id = $1
     ")
     .bind(form.id)
     .fetch_one(pool.inner())
-    .await
-    .unwrap();
+    .await {
+        Ok(a) => {a},
+        Err(a) => {return "Database Error";},
+    };
 
-    sqlx::query("
+    match sqlx::query("
         DELETE FROM match_teams
         WHERE id = $1
     ")
     .bind(form.id)
     .execute(pool.inner())
-    .await
-    .unwrap();
+    .await {
+        Ok(_) => {},
+        Err(a) => {return "Database Error";},
+    };
 
-    let remaining: (i64,) = sqlx::query_as("SELECT COUNT(*) FROM match_teams WHERE match_id = $1")
+    let remaining: (i64,) = match sqlx::query_as("SELECT COUNT(*) FROM match_teams WHERE match_id = $1")
     .bind(matchuniid.0) // store match_id in your form
     .fetch_one(pool.inner())
-    .await.unwrap();
+    .await {
+        Ok(a) => {a},
+        Err(a) => {return "Database Error";},
+    };
 
     // If no teams left, delete the match
     if remaining.0 == 0 {
-        sqlx::query("DELETE FROM matches WHERE id = $1")
+        match sqlx::query("DELETE FROM matches WHERE id = $1")
             .bind(matchuniid.0)
             .execute(pool.inner())
-            .await.unwrap();
+            .await {
+                Ok(_) => {},
+                Err(a) => {return "Database Error";},
+            };
     }
     "Scouting data submitted successfully"
 }

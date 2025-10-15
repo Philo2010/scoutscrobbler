@@ -293,12 +293,6 @@
     }
 
     //Disable enter
-    form.addEventListener('keydown', function(event) {
-      // Check if Enter is pressed
-      if (event.key === "Enter") {
-          event.preventDefault(); // stop form submission
-      }
-    });
 
     // Handle form submission with duplicate guard
     let submitting = false;
