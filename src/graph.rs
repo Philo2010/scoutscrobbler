@@ -46,7 +46,7 @@ pub async fn get_team_data(team: &i32, pool: &PgPool) -> Result<Vec<DataNodeTeam
         FROM scouting_entry se
         LEFT JOIN auto_data a ON a.scouting_id = se.id
         LEFT JOIN teleop_data t ON t.scouting_id = se.id
-        LEFT JOIN endgame_data e ON t.scouting_id = se.id
+        LEFT JOIN endgame_data e ON e.scouting_id = se.id
         WHERE se.team = $1
         ORDER BY se.created_at ASC;
     "#)

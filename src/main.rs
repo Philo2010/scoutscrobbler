@@ -25,7 +25,8 @@ mod submit_bad;
 mod blue;
 mod remove_queue;
 mod pit;
-//MAJOR TODO: Change structs for set, for now, we dont need such data
+//MAJOR TODO: Change structs for set, for now, we dont need such data,
+//Also todo: Make everything work with the one major struct, scouting form, to allow for easy changes!
 
 //CONFIGS
 //Make the auth header
@@ -40,7 +41,7 @@ const password_db: &'static str = "newpassword";
 const name_db: &'static str = "scoutscrobbler";
 
 //API for blue alleince
-const blue_api: &'static str = "{{ AHHHH }}";
+const blue_api: &'static str = "{{ INSERT API KEY }}";
 const admin_create_password: &'static str = "{{ INSERT PASSWORD }}";
 
 //Generatic types used all across code

@@ -1,20 +1,209 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Submitted Entries</title>
-    <link rel="stylesheet" href="/style.css">
+    <meta charset="UTF-8">
+    <title>Search Results</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Tablesort.js -->
+    <script src="https://unpkg.com/tablesort@5.3.0/dist/tablesort.min.js"></script>
+
+    <style>
+        /* Base body style */
+        body {
+            background-color: #2a2727;
+            color: white;
+            font-size: clamp(14px, 4vw, 20px);
+            font-family: monospace;
+            margin: 0;
+            padding: 1rem;
+            text-align: center;
+        }
+
+        h1 {
+            margin-bottom: 1rem;
+            font-size: clamp(20px, 6vw, 32px);
+        }
+
+        /* Responsive table wrapper for horizontal scroll */
+        .table-wrapper {
+            overflow-x: auto;
+        }
+
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            min-width: 800px; /* ensures table scrolls on small screens */
+            margin: 0 auto 2rem auto;
+        }
+
+        th, td {
+            border: 1px solid #555;
+            padding: 0.5rem 0.75rem;
+            text-align: left;
+        }
+
+        th {
+            background-color: #3a3737;
+            cursor: pointer;
+        }
+
+        tr:nth-child(even) {
+            background-color: #353131;
+        }
+
+        /* Boolean cells */
+        .bool-true {
+            background-color: #4caf50; /* green */
+            color: black;
+            font-weight: bold;
+        }
+
+        .bool-false {
+            background-color: #f44336; /* red */
+            color: black;
+            font-weight: bold;
+        }
+
+        .optional {
+            color: #ccc;
+        }
+
+        /* Tablesort arrows */
+        th.sortable {
+            position: relative;
+            user-select: none;
+        }
+
+        th.sortable::after {
+            content: "⇅"; /* unsorted */
+            position: absolute;
+            right: 8px;
+            font-size: 0.8em;
+            opacity: 0.4;
+        }
+
+        th.tablesort-up::after {
+            content: "▲";
+            opacity: 0.8;
+        }
+
+        th.tablesort-down::after {
+            content: "▼";
+            opacity: 0.8;
+        }
+
+        /* Buttons style */
+        .buttons {
+            border: 3px solid white;
+            border-radius: 10px;
+            padding: 0.75rem;
+            margin: 0.5rem auto;
+            width: 90%;
+            max-width: 400px;
+            box-sizing: border-box;
+            background-color: transparent;
+            transition: background 0.3s;
+        }
+
+        .buttons:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .buttons p {
+            margin: 0;
+            font-size: clamp(16px, 4vw, 24px);
+        }
+
+        /* Links inherit button styles */
+        a {
+            text-decoration: none;
+            color: inherit;
+            display: block;
+        }
+
+        /* Optional login menu style */
+        .login-menu {
+            background-color: grey;
+            padding: 8px;
+            margin: 10px auto;
+            border: 2px solid white;
+            border-radius: 10px;
+            max-width: 90%;
+            word-wrap: break-word;
+            font-size: clamp(12px, 3vw, 16px);
+        }
+
+        /* Mobile adjustments */
+        @media (min-width: 600px) {
+            .buttons {
+                width: 300px;
+            }
+        }
+    </style>
 </head>
 <body>
-    <h1>Results</h1>
-    {% for entry in entries %}
-        <a href="/get_player_match/{{ entry.id }}">
-            <div class="buttons">
-                Team: {{ entry.team }} <br>
-                User: {{ entry.user }} <br>
-                Created at: {{ entry.created_at }}
-            </div>
-        </a>
-        <br>
-    {% endfor %}
+
+    <h1>Search Results</h1>
+
+    {% if entries | length == 0 %}
+        <p>No results found.</p>
+    {% else %}
+        <div class="table-wrapper">
+            <table id="results">
+                <thead>
+                    <tr>
+                        <th class="sortable">ID</th>
+                        <th class="sortable">Team</th>
+                        <th class="sortable">Scouter</th>
+                        <th class="sortable">Match ID</th>
+                        <th class="sortable">Total Score</th>
+                        <th class="sortable">Game Peaces</th>
+                        <th class="sortable">Event</th>
+                        <th class="sortable">Moved</th>
+                        <th class="sortable">Died</th>
+                        <th class="sortable">Defense Rating</th>
+                        <th class="sortable">Climb Type</th>
+                        <th class="sortable">Created At</th>
+                        <th class="sortable">Comment</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for zip in entries %}
+                    {% set t = zip.0 %}
+                    {% set e = zip.1 %}
+                    {% set p = zip.2 %}
+                    <tr>
+                        <td>{{ e.id }}</td>
+                        <td>{{ e.team }}</td>
+                        <td>{{ e.user | default(value="—") }}</td>
+                        <td>{{ e.matchid }}</td>
+                        <td>{{ e.total_score }}</td>
+                        <td>{{ p }}</td>
+                        <td>{{ e.event_code }}</td>
+
+                        <td class="{% if e.moved %}bool-true{% else %}bool-false{% endif %}">
+                            {% if e.moved %}✔{% else %}✖{% endif %}
+                        </td>
+
+                        <td class="{% if e.died %}bool-true{% else %}bool-false{% endif %}">
+                            {% if e.died %}✔{% else %}✖{% endif %}
+                        </td>
+
+                        <td>{{ e.defense_rating | default(value="—") }}</td>
+                        <td>{{ e.climb_type | default(value="—") }}</td>
+                        <td>{{ e.created_at_fmt | default(value="—") }}</td>
+                        <td class="optional">{{ e.comment | default(value="") }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% endif %}
+
+    <script>
+        new Tablesort(document.getElementById('results'));
+    </script>
+
 </body>
 </html>
