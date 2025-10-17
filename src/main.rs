@@ -10,7 +10,7 @@ use sqlx::{postgres::{PgAdvisoryLock, PgPoolOptions}, types::chrono, Postgres, R
 use rocket::fs::relative;
 use rocket_db_pools::sqlx::{self, PgPool};
 use sqlx::types::Uuid;
-use crate::remove_queue::queue_remove;
+use crate::{remove_queue::queue_remove, viewpit::view_pit};
 
 mod submit;
 mod user;
@@ -27,6 +27,7 @@ mod remove_queue;
 mod pit;
 mod view_all_entries;
 mod team_avarages;
+mod viewpit;
 //MAJOR TODO: Change structs for set, for now, we dont need such data,
 //Also todo: Make everything work with the one major struct, scouting form, to allow for easy changes!
 
@@ -202,6 +203,6 @@ async fn rocket() -> _ {
     .manage(client)
     .manage(auth_headers)
     .attach(Template::fairing())
-    .mount("/", routes![submit::submit_page, user::new_user, login::login, search::search, get_player_match::get_player_match, graph::graph, queue::queue_form, scout::scout, submit_bad::submit_page, remove_queue::queue_remove, pit::pit_submit, view_all_entries::get_entries, team_avarages::avarage_team])
+    .mount("/", routes![submit::submit_page, user::new_user, login::login, search::search, get_player_match::get_player_match, graph::graph, queue::queue_form, scout::scout, submit_bad::submit_page, remove_queue::queue_remove, pit::pit_submit, view_all_entries::get_entries, team_avarages::avarage_team, viewpit::view_pit])
     .mount("/", FileServer::from(relative!("static")))
 }

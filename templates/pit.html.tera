@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Submitted Entries</title>
+    <link rel="stylesheet" href="/style.css">
+    <style>
+        body {
+            font-size: 10px;
+        }
+    </style
+</head>
+<body>
+    <h1>Pit Data</h1>
+    <p>Team: {{ entry.team }}</p>
+    <p>Event Code: {{ entry.event_code }}</p>
+
+    <p>L1: {{ entry.l1 }}</p>
+    <p>L2: {{ entry.l2 }}</p>
+    <p>L3: {{ entry.l3 }}</p>
+    <p>L4: {{ entry.l4 }}</p>
+    <p>Auto Algae (Processor): {{ entry.algae_processor }}</p>
+    <p>Auto Algae (Barge): {{ entry.algae_barge }}</p>
+    <p>Auto Algae (Remove): {{ entry.algae_remove }}</p>
+    <p>Ground Intake: {{ entry.ground_intake }}</p>
+    <p>Climber: {{ entry.climber }}</p>
+    <p>Height: {{ entry.height }}</p>
+    <p>Width X Length: {{ entry.widthxlength }}</p>
+    <p>Weight: {{ entry.weight }}</p>
+    <p>Willing to defence: {{ entry.defence }}</p>
+    <p>Driver Years Experience: {{ entry.driver_years_experience }}</p>
+    <p>Comment: {{ entry.comment }}</p>
+
+
+</body>
+</html>

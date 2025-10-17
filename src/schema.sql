@@ -72,5 +72,20 @@ CREATE TABLE pit_data (
     id SERIAL PRIMARY KEY,
     team INTEGER NOT NULL,
     event_code TEXT NOT NULL,
-    comment TEXT NOT NULL
+    algae_processor BOOLEAN NOT NULL,
+    algae_barge BOOLEAN NOT NULL,
+    algae_remove BOOLEAN NOT NULL,
+    L1 BOOLEAN NOT NULL,
+    L2 BOOLEAN NOT NULL,
+    L3 BOOLEAN NOT NULL,
+    L4 BOOLEAN NOT NULL,
+    ground_intake BOOLEAN NOT NULL,
+    climber BOOLEAN NOT NULL,
+    height TEXT NOT NULL,
+    widthxlength TEXT NOT NULL,
+    weight TEXT NOT NULL,
+    defence TEXT NOT NULL,
+    driver_years_experience TEXT NOT NULL,
+    comment TEXT NOT NULL,
+    UNIQUE (team, event_code)
 );

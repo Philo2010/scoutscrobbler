@@ -1,177 +1,66 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Search Results</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<div class="table-wrapper">
+    <table id="results">
+        <thead>
+            <tr>
+                <th class="sortable">Team</th>
+                <th class="sortable">Score</th>
 
-    <!-- Tablesort.js -->
-    <script src="https://unpkg.com/tablesort@5.3.0/dist/tablesort.min.js"></script>
+                <th class="sortable">Auto L1</th>
+                <th class="sortable">Auto L2</th>
+                <th class="sortable">Auto L3</th>
+                <th class="sortable">Auto L4</th>
+                <th class="sortable">Auto Algae Processor</th>
+                <th class="sortable">Auto Algae Barge</th>
+                <th class="sortable">Auto Algae Remove</th>
 
-    <style>
-        /* Base body style */
-        body {
-            background-color: #2a2727;
-            color: white;
-            font-size: clamp(14px, 4vw, 20px);
-            font-family: monospace;
-            margin: 0;
-            padding: 1rem;
-            text-align: center;
-        }
+                <th class="sortable">Teleop L1</th>
+                <th class="sortable">Teleop L2</th>
+                <th class="sortable">Teleop L3</th>
+                <th class="sortable">Teleop L4</th>
+                <th class="sortable">Teleop Algae Processor</th>
+                <th class="sortable">Teleop Algae Barge</th>
+                <th class="sortable">Teleop Algae Remove</th>
 
-        h1 {
-            margin-bottom: 1rem;
-            font-size: clamp(20px, 6vw, 32px);
-        }
+                <th class="sortable">Climb Deep</th>
+                <th class="sortable">Climb Shallow</th>
+                <th class="sortable">Climb Park</th>
+                <th class="sortable">Game Pieces</th>
+                <th class="sortable">Died</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for e in entries %}
+            <tr>
+                <td data-sort="{{ e.team }}">{{ e.team }}</td>
+                <td data-sort="{{ e.total_score }}">{{ e.total_score }}</td>
 
-        /* Responsive table wrapper for horizontal scroll */
-        .table-wrapper {
-            overflow-x: auto;
-        }
+                <td data-sort="{{ e.auto_l1 }}">{{ e.auto_l1 }}</td>
+                <td data-sort="{{ e.auto_l2 }}">{{ e.auto_l2 }}</td>
+                <td data-sort="{{ e.auto_l3 }}">{{ e.auto_l3 }}</td>
+                <td data-sort="{{ e.auto_l4 }}">{{ e.auto_l4 }}</td>
+                <td data-sort="{{ e.auto_algae_processor }}">{{ e.auto_algae_processor }}</td>
+                <td data-sort="{{ e.auto_algae_barge }}">{{ e.auto_algae_barge }}</td>
+                <td data-sort="{{ e.auto_algae_remove }}">{{ e.auto_algae_remove }}</td>
 
-        table {
-            border-collapse: collapse;
-            width: 100%;
-            min-width: 800px; /* ensures table scrolls on small screens */
-            margin: 0 auto 2rem auto;
-        }
+                <td data-sort="{{ e.teleop_l1 }}">{{ e.teleop_l1 }}</td>
+                <td data-sort="{{ e.teleop_l2 }}">{{ e.teleop_l2 }}</td>
+                <td data-sort="{{ e.teleop_l3 }}">{{ e.teleop_l3 }}</td>
+                <td data-sort="{{ e.teleop_l4 }}">{{ e.teleop_l4 }}</td>
+                <td data-sort="{{ e.teleop_algae_processor }}">{{ e.teleop_algae_processor }}</td>
+                <td data-sort="{{ e.teleop_algae_barge }}">{{ e.teleop_algae_barge }}</td>
+                <td data-sort="{{ e.teleop_algae_remove }}">{{ e.teleop_algae_remove }}</td>
 
-        th, td {
-            border: 1px solid #555;
-            padding: 0.5rem 0.75rem;
-            text-align: left;
-        }
+                <td data-sort="{{ e.climb_deep }}">{{ e.climb_deep }}%</td>
+                <td data-sort="{{ e.climb_shallow }}">{{ e.climb_shallow }}%</td>
+                <td data-sort="{{ e.climb_park }}">{{ e.climb_park }}%</td>
+                <td data-sort="{{ e.game_pieces }}">{{ e.game_pieces }}</td>
+                <td data-sort="{{ e.died }}">{{ e.died }}%</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
 
-        th {
-            background-color: #3a3737;
-            cursor: pointer;
-        }
-
-        tr:nth-child(even) {
-            background-color: #353131;
-        }
-
-        /* Boolean cells */
-        .bool-true {
-            background-color: #4caf50; /* green */
-            color: black;
-            font-weight: bold;
-        }
-
-        .bool-false {
-            background-color: #f44336; /* red */
-            color: black;
-            font-weight: bold;
-        }
-
-        .optional {
-            color: #ccc;
-        }
-
-        /* Tablesort arrows */
-        th.sortable {
-            position: relative;
-            user-select: none;
-        }
-
-        th.sortable::after {
-            content: "⇅"; /* unsorted */
-            position: absolute;
-            right: 8px;
-            font-size: 0.8em;
-            opacity: 0.4;
-        }
-
-        th.tablesort-up::after {
-            content: "▲";
-            opacity: 0.8;
-        }
-
-        th.tablesort-down::after {
-            content: "▼";
-            opacity: 0.8;
-        }
-
-        /* Buttons style */
-        .buttons {
-            border: 3px solid white;
-            border-radius: 10px;
-            padding: 0.75rem;
-            margin: 0.5rem auto;
-            width: 90%;
-            max-width: 400px;
-            box-sizing: border-box;
-            background-color: transparent;
-            transition: background 0.3s;
-        }
-
-        .buttons:hover {
-            background-color: rgba(255, 255, 255, 0.1);
-        }
-
-        .buttons p {
-            margin: 0;
-            font-size: clamp(16px, 4vw, 24px);
-        }
-
-        /* Links inherit button styles */
-        a {
-            text-decoration: none;
-            color: inherit;
-            display: block;
-        }
-
-        /* Optional login menu style */
-        .login-menu {
-            background-color: grey;
-            padding: 8px;
-            margin: 10px auto;
-            border: 2px solid white;
-            border-radius: 10px;
-            max-width: 90%;
-            word-wrap: break-word;
-            font-size: clamp(12px, 3vw, 16px);
-        }
-
-        /* Mobile adjustments */
-        @media (min-width: 600px) {
-            .buttons {
-                width: 300px;
-            }
-        }
-    </style>
-</head>
-<body>
-
-    <h1>Team Avarages:</h1>
-
-    {% if entries | length == 0 %}
-        <p>No results found.</p>
-    {% else %}
-        <div class="table-wrapper">
-            <table id="results">
-                <thead>
-                    <tr>
-                        <th class="sortable">Team</th>
-                        <th class="sortable">Score</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for e in entries %}
-                    <tr>
-                        <td>{{ e.0 }}</td>
-                        <td>{{ e.1 }}</td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
-    {% endif %}
-
-    <script>
-        new Tablesort(document.getElementById('results'));
-    </script>
-
-</body>
-</html>
+<script>
+    new Tablesort(document.getElementById('results'));
+</script>
