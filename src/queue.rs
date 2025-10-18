@@ -1,4 +1,5 @@
 use std::fmt::format;
+use std::i32;
 use std::str::FromStr;
 
 use reqwest::header::HeaderMap;
@@ -119,9 +120,22 @@ impl From<&TbaMatch> for Match {
 
         // Red teams
         for (i, team_key) in tba.alliances.red.team_keys.iter().enumerate() {
-            if let Some(num) = team_key.strip_prefix("frc").and_then(|n| n.parse::<i32>().ok()) {
+            if let Some(num) = team_key.strip_prefix("frc").and_then(|n| n.parse::<String>().ok()) {
+                let newnum =  match num.chars().last().unwrap() { //Is a b team
+                    'B' => {
+                        let mut chas = num.chars();
+                        chas.next_back();
+                        println!("{}", ("99".to_owned()+chas.as_str()));
+                        println!("{}",team_key);
+                        ("99".to_owned()+chas.as_str()).parse::<i32>()},
+                    _ => num.parse::<i32>(),
+                };
+                let numbered = match newnum {
+                    Ok(a) => a,
+                    Err(_) => {println!("Error with parse");continue;},
+                };
                 teams.push(Team {
-                    teamNumber: num,
+                    teamNumber: numbered,
                     station: format!("Red{}", i + 1),
                 });
             }
@@ -129,9 +143,23 @@ impl From<&TbaMatch> for Match {
 
         // Blue teams
         for (i, team_key) in tba.alliances.blue.team_keys.iter().enumerate() {
-            if let Some(num) = team_key.strip_prefix("frc").and_then(|n| n.parse::<i32>().ok()) {
+            if let Some(num) = team_key.strip_prefix("frc").and_then(|n| n.parse::<String>().ok()) {
+                let newnum =  match num.chars().last().unwrap() { //Is a b team
+                    'B' => {
+                        let mut chas = num.chars();
+                        chas.next_back();
+                        println!("{}", ("99".to_owned()+chas.as_str()));
+                        println!("{}",team_key);
+                        ("99".to_owned()+chas.as_str()).parse::<i32>()},
+                    _ => num.parse::<i32>(),
+                };
+                let numbered = match newnum {
+                    Ok(a) => a,
+                    Err(_) => {println!("Error with parse");continue;},
+                };
+
                 teams.push(Team {
-                    teamNumber: num,
+                    teamNumber: numbered,
                     station: format!("Blue{}", i + 1),
                 });
             }
