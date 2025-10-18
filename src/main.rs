@@ -203,6 +203,6 @@ async fn rocket() -> _ {
     .manage(client)
     .manage(auth_headers)
     .attach(Template::fairing())
-    .mount("/", routes![submit::submit_page, user::new_user, login::login, search::search, get_player_match::get_player_match, graph::graph, queue::queue_form, scout::scout, submit_bad::submit_page, remove_queue::queue_remove, pit::pit_submit, view_all_entries::get_entries, team_avarages::avarage_team, viewpit::view_pit])
+    .mount("/", routes![submit::submit_page, user::new_user, login::login, search::search, get_player_match::get_player_match, graph::graph, queue::queue_form, scout::scout, submit_bad::submit_page, remove_queue::queue_remove, pit::pit_submit, view_all_entries::get_entries, team_avarages::avarage_team, viewpit::view_pit, team_avarages::avarage_team_event])
     .mount("/", FileServer::from(relative!("static")))
 }
