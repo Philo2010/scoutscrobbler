@@ -1,31 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Search Results</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Tablesort.js -->
+    <script src="https://unpkg.com/tablesort@5.3.0/dist/tablesort.min.js"></script>
+
+    <style>
+        body {
+            background-color: #2a2727;
+            color: white;
+            font-size: clamp(14px, 4vw, 20px);
+            font-family: monospace;
+            margin: 0;
+            padding: 1rem;
+            text-align: center;
+        }
+
+        h1 {
+            margin-bottom: 1rem;
+            font-size: clamp(20px, 6vw, 32px);
+        }
+
+        .table-wrapper {
+            overflow-x: auto;
+        }
+
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            min-width: 800px;
+            margin: 0 auto 2rem auto;
+        }
+
+        th, td {
+            border: 1px solid #555;
+            padding: 0.5rem 0.75rem;
+            text-align: left;
+        }
+
+        th {
+            background-color: #3a3737;
+            cursor: pointer;
+        }
+
+        tr:nth-child(even) {
+            background-color: #353131;
+        }
+
+        .bool-true {
+            background-color: #4caf50;
+            color: black;
+            font-weight: bold;
+        }
+
+        .bool-false {
+            background-color: #f44336;
+            color: black;
+            font-weight: bold;
+        }
+
+        .optional {
+            color: #ccc;
+        }
+
+        th.sortable {
+            position: relative;
+            user-select: none;
+        }
+
+        th.sortable::after {
+            content: "⇅";
+            position: absolute;
+            right: 8px;
+            font-size: 0.8em;
+            opacity: 0.4;
+        }
+
+        th.tablesort-up::after {
+            content: "▲";
+            opacity: 0.8;
+        }
+
+        th.tablesort-down::after {
+            content: "▼";
+            opacity: 0.8;
+        }
+
+        .buttons {
+            border: 3px solid white;
+            border-radius: 10px;
+            padding: 0.75rem;
+            margin: 0.5rem auto;
+            width: 90%;
+            max-width: 400px;
+            background-color: transparent;
+            transition: background 0.3s;
+        }
+
+        .buttons:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .buttons p {
+            margin: 0;
+            font-size: clamp(16px, 4vw, 24px);
+        }
+
+        a {
+            text-decoration: none;
+            color: inherit;
+            display: block;
+        }
+
+        .login-menu {
+            background-color: grey;
+            padding: 8px;
+            margin: 10px auto;
+            border: 2px solid white;
+            border-radius: 10px;
+            max-width: 90%;
+            word-wrap: break-word;
+            font-size: clamp(12px, 3vw, 16px);
+        }
+
+        @media (min-width: 600px) {
+            .buttons {
+                width: 300px;
+            }
+        }
+    </style>
+</head>
+<body>
 <div class="table-wrapper">
     <table id="results">
         <thead>
             <tr>
-                <th class="sortable">Team</th>
-                <th class="sortable">Score</th>
+                <th class="sortable sort-number">Team</th>
+                <th class="sortable sort-number">Score</th>
 
-                <th class="sortable">Auto L1</th>
-                <th class="sortable">Auto L2</th>
-                <th class="sortable">Auto L3</th>
-                <th class="sortable">Auto L4</th>
-                <th class="sortable">Auto Algae Processor</th>
-                <th class="sortable">Auto Algae Barge</th>
-                <th class="sortable">Auto Algae Remove</th>
+                <th class="sortable sort-number">Auto L1</th>
+                <th class="sortable sort-number">Auto L2</th>
+                <th class="sortable sort-number">Auto L3</th>
+                <th class="sortable sort-number">Auto L4</th>
+                <th class="sortable sort-number">Auto Algae Processor</th>
+                <th class="sortable sort-number">Auto Algae Barge</th>
+                <th class="sortable sort-number">Auto Algae Remove</th>
 
-                <th class="sortable">Teleop L1</th>
-                <th class="sortable">Teleop L2</th>
-                <th class="sortable">Teleop L3</th>
-                <th class="sortable">Teleop L4</th>
-                <th class="sortable">Teleop Algae Processor</th>
-                <th class="sortable">Teleop Algae Barge</th>
-                <th class="sortable">Teleop Algae Remove</th>
+                <th class="sortable sort-number">Teleop L1</th>
+                <th class="sortable sort-number">Teleop L2</th>
+                <th class="sortable sort-number">Teleop L3</th>
+                <th class="sortable sort-number">Teleop L4</th>
+                <th class="sortable sort-number">Teleop Algae Processor</th>
+                <th class="sortable sort-number">Teleop Algae Barge</th>
+                <th class="sortable sort-number">Teleop Algae Remove</th>
 
-                <th class="sortable">Climb Deep</th>
-                <th class="sortable">Climb Shallow</th>
-                <th class="sortable">Climb Park</th>
-                <th class="sortable">Game Pieces</th>
-                <th class="sortable">Died</th>
+                <th class="sortable sort-number">Climb Deep</th>
+                <th class="sortable sort-number">Climb Shallow</th>
+                <th class="sortable sort-number">Climb Park</th>
+                <th class="sortable sort-number">Game Pieces</th>
+                <th class="sortable sort-number">Died</th>
             </tr>
         </thead>
         <tbody>
@@ -62,5 +198,19 @@
 </div>
 
 <script>
+    // Extend Tablesort to properly handle numeric sorting (including %)
+    Tablesort.extend('number', function(item) {
+        // Detect if item looks like a number or percentage
+        return /^-?[\d,.]+%?$/.test(item.trim());
+    }, function(a, b) {
+        // Remove % and commas, then parse as float
+        a = parseFloat(a.replace(/[%,$]/g, '')) || 0;
+        b = parseFloat(b.replace(/[%,$]/g, '')) || 0;
+        return a - b;
+    });
+
+    // Initialize the sorter
     new Tablesort(document.getElementById('results'));
 </script>
+</body>
+</html>

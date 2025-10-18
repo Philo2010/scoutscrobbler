@@ -37,7 +37,6 @@ tr:nth-child(even){background-color:#353131;}
 <tr>
 <th class="sortable numeric">ID</th>
 <th class="sortable">Team</th>
-<th class="sortable">View Pit</th>
 <th class="sortable">Scouter</th>
 <th class="sortable numeric">Match ID</th>
 <th class="sortable numeric">Total Score</th>
@@ -60,9 +59,6 @@ tr:nth-child(even){background-color:#353131;}
 <td data-sort="{{ e.id }}">{{ e.id }}</td>
 <td>
 <a href="/viewpit/{{ e.event_code }}/{{ e.team }}">{{ e.team }}</a>
-</td>
-<td>
-<a href="/viewpit/{{ e.event_code }}/{{ e.team }}">View Pit</a>
 </td>
 <td>{{ e.user | default(value="—") }}</td>
 <td data-sort="{{ e.matchid }}">{{ e.matchid }}</td>
