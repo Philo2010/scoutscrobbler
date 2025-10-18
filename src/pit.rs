@@ -12,6 +12,7 @@ pub struct Pit_Submit_data {
     pub algae_processor: String,
     pub algae_barge: String,
     pub algae_remove: String,
+    pub auto_align: String,
     pub l1: String,
     pub l2: String,
     pub l3: String,
@@ -50,6 +51,7 @@ pub async fn pit_submit(form_data: Form<Pit_Submit_data>, pool: &rocket::State<P
     let defence = parse_out_bool(&form_data.defence);
     let ground_intake = parse_out_bool(&form_data.ground_intake);
     let climber = parse_out_bool(&form_data.climber);
+    let auto_align = parse_out_bool(&form_data.auto_align);
     let comment = match &form_data.comment {
         Some(a) => a.clone(),
         None => "".to_string(),
@@ -63,6 +65,7 @@ pub async fn pit_submit(form_data: Form<Pit_Submit_data>, pool: &rocket::State<P
 
     let result = sqlx::query!(r#"
     INSERT INTO pit_data (
+    auto_align,
     team,
     event_code,
     algae_processor,
@@ -77,8 +80,9 @@ pub async fn pit_submit(form_data: Form<Pit_Submit_data>, pool: &rocket::State<P
     defence,
     driver_years_experience,
     comment)
-    VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17)
+    VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18)
     "#, 
+    auto_align,
     form_data.team,
     form_data.event_code,
     algae_processor,

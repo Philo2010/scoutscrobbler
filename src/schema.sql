@@ -79,6 +79,7 @@ CREATE TABLE pit_data (
     L2 BOOLEAN NOT NULL,
     L3 BOOLEAN NOT NULL,
     L4 BOOLEAN NOT NULL,
+    auto_align BOOLEAN NOT NULL,
     ground_intake BOOLEAN NOT NULL,
     climber BOOLEAN NOT NULL,
     height TEXT NOT NULL,
