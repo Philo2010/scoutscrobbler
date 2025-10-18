@@ -18,6 +18,7 @@
     <p>L2: {{ entry.l2 }}</p>
     <p>L3: {{ entry.l3 }}</p>
     <p>L4: {{ entry.l4 }}</p>
+    <p>Auto Align {{ entry.auto_align }}</p>
     <p>Auto Algae (Processor): {{ entry.algae_processor }}</p>
     <p>Auto Algae (Barge): {{ entry.algae_barge }}</p>
     <p>Auto Algae (Remove): {{ entry.algae_remove }}</p>

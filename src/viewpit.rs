@@ -11,6 +11,7 @@ struct PitData {
     algae_processor: bool,
     algae_barge: bool,
     algae_remove: bool,
+    auto_align: bool,
     l1: bool,
     l2: bool,
     l3: bool,
