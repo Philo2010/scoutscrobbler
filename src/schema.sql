@@ -84,7 +84,7 @@ CREATE TABLE pit_data (
     height TEXT NOT NULL,
     widthxlength TEXT NOT NULL,
     weight TEXT NOT NULL,
-    defence TEXT NOT NULL,
+    defence BOOLEAN NOT NULL,
     driver_years_experience TEXT NOT NULL,
     comment TEXT NOT NULL,
     UNIQUE (team, event_code)

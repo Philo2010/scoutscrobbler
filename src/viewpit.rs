@@ -20,7 +20,7 @@ struct PitData {
     height: String,
     widthxlength: String,
     weight: String,
-    defence: String,
+    defence: bool,
     driver_years_experience: String,
     comment: String,
 }

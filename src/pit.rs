@@ -47,6 +47,7 @@ pub async fn pit_submit(form_data: Form<Pit_Submit_data>, pool: &rocket::State<P
     let l2 = parse_out_bool(&form_data.l2);
     let l3 = parse_out_bool(&form_data.l3);
     let l4 = parse_out_bool(&form_data.l4);
+    let defence = parse_out_bool(&form_data.defence);
     let ground_intake = parse_out_bool(&form_data.ground_intake);
     let climber = parse_out_bool(&form_data.climber);
     let comment = match &form_data.comment {
@@ -92,7 +93,7 @@ pub async fn pit_submit(form_data: Form<Pit_Submit_data>, pool: &rocket::State<P
     &form_data.height,
     &form_data.widthxlength,
     &form_data.weight,
-    &form_data.defence,
+    defence,
     &form_data.driver_years_experience,
     comment)
     .execute(pool.inner()).await;
