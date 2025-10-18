@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Team averages</title>
+    <link rel="stylesheet" href="/style.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
+    <h1>Team averages</h1>
+    <form id="searchForm">
+        <label for="event">Event:</label><br>
+        <input type="text" id="event" name="event" required><br><br>
+        <input type="submit" value="Search">
+    </form>
+
+    <script>
+        document.getElementById('searchForm').addEventListener('submit', function (e) {
+            e.preventDefault(); // Stop normal form submission
+            const event = document.getElementById('event').value.trim();
+            if (event) {
+                window.location.href = `/team/${encodeURIComponent(event)}`;
+            }
+        });
+    </script>
+</body>
+</html>
