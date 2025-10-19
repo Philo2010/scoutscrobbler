@@ -1,6 +1,6 @@
 //Handles pit scouting data
 
-use rocket::form::Form;
+use rocket::{form::{self, Form}, State};
 use rocket_dyn_templates::{context, Template};
 use sqlx::PgPool;
 
@@ -28,12 +28,76 @@ pub struct Pit_Submit_data {
     pub comment: Option<String>,
 }
 
+#[derive(Debug, FromForm)]
+pub struct pitAutoSubmit {
+    pub team: i32,
+    pub event_code: String,
+
+    //Auto
+    pub left_auto: String,
+    pub center_auto: String,
+    pub right_auto: String,
+    
+    pub amount_of_sides: Option<String>,
+    pub amount_of_combo_sides: Option<String>,
+    pub coral_amount: String,
+    pub algae_amount: String,
+}
+
 fn parse_out_bool(val: &str) -> bool {
     match val {
         "yes" => true,
         "no" => false,
         _ => false,
     }
+}
+
+
+#[post("/pit_auto_submit", data = "<form_data>")]
+pub async fn pit_auto_submit(form_data: Form<pitAutoSubmit>, pool: &State<PgPool>) -> Template {
+
+    let id: i32 = match sqlx::query_scalar!("
+    SELECT id FROM pit_data WHERE team = $1 AND event_code = $2", &form_data.team, &form_data.event_code).fetch_one(pool.inner()).await {
+        Ok(a) => a,
+        Err(_) => {
+            return Template::render("error", context![error: "Database error"]);
+        },
+    };
+
+    let left_auto = parse_out_bool(&form_data.left_auto);
+    let center_auto = parse_out_bool(&form_data.center_auto);
+    let right_auto = parse_out_bool(&form_data.right_auto);
+    let amount_of_sides = match &form_data.amount_of_sides {
+        Some(a) => a.clone(),
+        None => "".to_string(),
+    };
+    let amount_of_combo_sides = match &form_data.amount_of_combo_sides {
+        Some(a) => a.clone(),
+        None => "".to_string(),
+    };
+
+    let result = sqlx::query!(r#"
+        INSERT INTO pit_auto_data (
+        pit_id,
+        left_auto,
+        center_auto,
+        right_auto,
+        amount_of_sides,
+        amount_of_combo_sides,
+        coral_amount,
+        algae_amount)
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+    "#, id,
+     left_auto, 
+     center_auto,
+      right_auto, 
+      amount_of_sides, 
+      amount_of_combo_sides,
+    &form_data.coral_amount,
+    &form_data.algae_amount).execute(pool.inner()).await;
+
+
+    return Template::render("yippy", context! {});
 }
 
 #[post("/pit_submit", data = "<form_data>")]
@@ -56,7 +120,6 @@ pub async fn pit_submit(form_data: Form<Pit_Submit_data>, pool: &rocket::State<P
         Some(a) => a.clone(),
         None => "".to_string(),
     };
-    
     
     
     
@@ -99,7 +162,8 @@ pub async fn pit_submit(form_data: Form<Pit_Submit_data>, pool: &rocket::State<P
     &form_data.weight,
     defence,
     &form_data.driver_years_experience,
-    comment)
+    comment,
+)
     .execute(pool.inner()).await;
 
     match result {

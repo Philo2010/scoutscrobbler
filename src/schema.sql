@@ -90,3 +90,19 @@ CREATE TABLE pit_data (
     comment TEXT NOT NULL,
     UNIQUE (team, event_code)
 );
+
+
+CREATE TABLE pit_auto_data (
+    id SERIAL PRIMARY KEY,
+    pit_id INTEGER REFERENCES pit_data(id) ON DELETE CASCADE,
+    --Auto
+    left_auto BOOLEAN NOT NULL,
+    center_auto BOOLEAN NOT NULL,
+    right_auto BOOLEAN NOT NULL,
+
+    --Comment
+    amount_of_sides TEXT NOT NULL,
+    amount_of_combo_sides TEXT NOT NULL,
+    coral_amount TEXT NOT NULL,
+    algae_amount TEXT NOT NULL
+);

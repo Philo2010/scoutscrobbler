@@ -49,7 +49,9 @@ pub async fn get_entries(pool: &State<PgPool>) -> Template {
     ORDER BY s.team ASC;
     "#).fetch_all(pool.inner()).await {
         Ok(a) => a,
-        Err(_) => {return Template::render("error", context! {error: "Database Error!"});},
+        Err(a) => {
+            println!("{a}");
+            return Template::render("error", context! {error: "Database Error!"});},
     };
 
 

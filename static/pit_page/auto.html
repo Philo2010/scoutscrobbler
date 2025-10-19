@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pit</title>
+    <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+
+    <h2>Pit</h2>
+
+    <form action="/pit_submit" method="POST">
+        <label for="team">Team:</label><br>
+        <input type="number" id="team" name="team" required><br><br>
+
+        <label for="event_code">Event code:</label><br>
+        <input type="text" id="event_code" name="event_code" required><br><br>
+        
+        <h2>Auto</h2>
+
+        <label for="left_auto">Left auto</label>
+        <select name="left_auto" id="left_auto">
+            <option value="no">No</option>
+            <option value="yes">Yes</option>
+        </select><br>
+
+        <label for="center_auto">Center auto</label>
+        <select name="center_auto" id="center_auto">
+            <option value="no">No</option>
+            <option value="yes">Yes</option>
+        </select><br>
+
+        <label for="right_auto">Left auto</label>
+        <select name="right_auto" id="right_auto">
+            <option value="no">No</option>
+            <option value="yes">Yes</option>
+        </select><br>
+
+        <label for="amount_of_sides">Amount of sides</label>
+        <textarea name="amount_of_sides" id="amount_of_sides"></textarea><br>
+
+        <label for="amount_of_combo_sides">Differnt combinations on each side</label>
+        <textarea name="amount_of_combo_sides" id="amount_of_combo_sides"></textarea><br>
+
+        <label for="coral_amount">Coral Amount</label>
+        <input type="text" id="coral_amount" name="coral_amount" required><br><br>
+
+        <label for="algae_amount">Coral Amount</label>
+        <input type="text" id="algae_amount" name="algae_amount" required><br><br>
+
+        <input type="submit" value="Submit">
+    </form>
+
+</body>
+</html>
