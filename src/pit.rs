@@ -59,7 +59,8 @@ pub async fn pit_auto_submit(form_data: Form<pitAutoSubmit>, pool: &State<PgPool
     let id: i32 = match sqlx::query_scalar!("
     SELECT id FROM pit_data WHERE team = $1 AND event_code = $2", &form_data.team, &form_data.event_code).fetch_one(pool.inner()).await {
         Ok(a) => a,
-        Err(_) => {
+        Err(a) => {
+            println!("{a}");
             return Template::render("error", context![error: "Database error"]);
         },
     };
