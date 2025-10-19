@@ -41,7 +41,7 @@ pub async fn get_team_data(team: &i32, pool: &PgPool) -> Result<Vec<DataNodeTeam
             COALESCE(t.L2, 0) * 3 +
             COALESCE(t.L1, 0) * 2 +
             COALESCE(t.algae_processor, 0) * 2 +
-            COALESCE(t.algae_barge, 0) * 2 AS teleop_total
+            COALESCE(t.algae_barge, 0) * 4 AS teleop_total
 
         FROM scouting_entry se
         LEFT JOIN auto_data a ON a.scouting_id = se.id

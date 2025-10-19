@@ -22,7 +22,7 @@ pub const teleop_l3_amount: i32 = 4;
 pub const teleop_l2_amount: i32 = 3;
 pub const teleop_l1_amount: i32 = 2;
 pub const teleop_algae_processor_amount: i32 = 2;
-pub const teleop_algae_barge_amount: i32 = 2;
+pub const teleop_algae_barge_amount: i32 = 4;
 
 fn calculate_final_score(form: &ScoutingForm) -> i32 {
     let auto_coral = 

@@ -212,7 +212,7 @@
     const topbar = document.getElementById("topbar");
 
     if (station) {
-      topbar.textContent = `Your currently Scouting ${station}`;
+      topbar.textContent = `Your currently Scouting ${station} team: ${team}`;
       topbar.classList.add(station.replace(/[0-9]/g, '')); // matches CSS classes: red, blue, green
     }
 
